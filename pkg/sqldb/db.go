@@ -32,6 +32,12 @@ func getDBPATH() string {
 	}
 }
 
+func logQueries() bool {
+	var logENV = os.Getenv("JRNL_LOG_QUERIES")
+	var shouldLog = logENV == "true"
+	return shouldLog && isDev
+}
+
 func Connect() *bun.DB {
 	DB_PATH := getDBPATH()
 
@@ -45,7 +51,8 @@ func Connect() *bun.DB {
 	util.CheckError(err)
 	db = bun.NewDB(sqlite, sqlitedialect.New())
 
-	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(isDev)))
+	verbose := logQueries()
+	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(verbose)))
 
 	return db
 
