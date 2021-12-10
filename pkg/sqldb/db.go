@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"jrnl/pkg/util"
 
@@ -15,30 +16,48 @@ import (
 	"github.com/uptrace/bun/extra/bundebug"
 )
 
-const DB_FILE = "./jrnl.db"
-
 var db *bun.DB
 
+var devENV = os.Getenv("DEV")
+var isDev = devENV == "true"
+
+func getDBPATH() string {
+	if isDev {
+		return "./.dev/jrnl.db"
+	} else {
+		home := os.Getenv("HOME")
+		path := filepath.Join(home, ".data/jrnl", "jrnl.db")
+
+		return path
+	}
+}
+
 func Connect() *bun.DB {
-	if f, err := os.Stat(DB_FILE); err != nil || f.Size() == 0 {
-		fmt.Println("Creating new database")
-		CreateDB()
+	DB_PATH := getDBPATH()
+
+	if f, err := os.Stat(DB_PATH); f.Size() == 0 {
+		util.CheckError(err)
+		CreateDB(DB_PATH)
+		fmt.Println("Created new database")
 	}
 
-	sqlite, err := sql.Open(sqliteshim.ShimName, DB_FILE)
+	sqlite, err := sql.Open(sqliteshim.ShimName, DB_PATH)
 	util.CheckError(err)
 	db = bun.NewDB(sqlite, sqlitedialect.New())
 
-	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(isDev)))
 
 	return db
 
 }
 
-func CreateDB() {
+func CreateDB(dbfile string) {
 	ctx := context.Background()
+	dir := filepath.Dir(dbfile)
 
-	sqlite, err := sql.Open(sqliteshim.ShimName, DB_FILE)
+	os.MkdirAll(dir, 0755)
+
+	sqlite, err := sql.Open(sqliteshim.ShimName, dbfile)
 	util.CheckError(err)
 	db = bun.NewDB(sqlite, sqlitedialect.New())
 

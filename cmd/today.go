@@ -12,7 +12,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// TODO: write to file if entry already exists
 var TodayCmd = &cli.Command{
 	Name:    "today",
 	Aliases: []string{"n"},
