@@ -6,8 +6,8 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type EntryModel struct {
-	bun.BaseModel `bun:"table:entry"`
+type JournalEntry struct {
+	bun.BaseModel `bun:"table:journal_entrys"`
 
 	Id        string    `bun:"id,pk"`
 	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`

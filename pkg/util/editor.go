@@ -1,30 +1,26 @@
 package util
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
 )
 
-func OpenEditor() string {
-	content := ""
+func GetNewEntry(content string) string {
 	file, err := os.CreateTemp("", "today-*.md")
+	CheckError(err)
 
+	_, err = file.WriteString(content)
 	CheckError(err)
 
 	OpenNoteWithEditor(file.Name())
 
-	file.Seek(0, 0)
-	s := bufio.NewScanner(file)
-
-	for s.Scan() {
-		content += s.Text()
-	}
+	newContent, err := os.ReadFile(file.Name())
+	CheckError(err)
 
 	defer os.Remove(file.Name())
 
-	return content
+	return string(newContent)
 }
 
 // OpenEditor opens the default editor with the given filename.

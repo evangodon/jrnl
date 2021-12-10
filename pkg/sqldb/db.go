@@ -42,7 +42,7 @@ func CreateDB() {
 	util.CheckError(err)
 	db = bun.NewDB(sqlite, sqlitedialect.New())
 
-	db.NewCreateTable().Model(&EntryModel{}).Exec(ctx)
+	db.NewCreateTable().Model(&JournalEntry{}).Exec(ctx)
 
 }
 
