@@ -63,6 +63,12 @@ var TodayCmd = &cli.Command{
 
 		util.CheckError(err)
 
+		if existingEntryId != "" {
+			fmt.Println("Today's entry updated.")
+		} else {
+			fmt.Println("Entry added for today.")
+		}
+
 		return nil
 	},
 }
