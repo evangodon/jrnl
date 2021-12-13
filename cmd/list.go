@@ -69,6 +69,7 @@ func getJournalEntries() tea.Msg {
 	err := db.NewSelect().
 		Model(&sqldb.JournalEntry{}).
 		Column("id", "created_at", "content").
+		Order("created_at DESC").
 		Scan(ctx, &journalEntries)
 
 	if err != nil {
@@ -121,8 +122,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		for index, entry := range entries {
 			date := util.FormatToLocalTime(entry.CreatedAt, "Monday, January 2, 2006")
 
-			m.list.InsertItem(0, item{
-				title: fmt.Sprintf("Journal #%v", index+1),
+			m.list.InsertItem(index, item{
+				title: fmt.Sprintf("Journal #%v", len(entries)-index),
 				date:  date,
 			})
 			m.entries[index] = Entry{
