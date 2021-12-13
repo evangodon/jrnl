@@ -12,7 +12,7 @@ func main() {
 
 	app := &cli.App{
 
-		Commands: []*cli.Command{cmd.TodayCmd},
+		Commands: []*cli.Command{cmd.TodayCmd, cmd.ListCmd},
 	}
 
 	err := app.Run(os.Args)
