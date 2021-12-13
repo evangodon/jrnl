@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
 )
 
@@ -18,10 +19,12 @@ var TodayCmd = &cli.Command{
 	Usage:   "Create a new journal entry for today",
 	Action: func(c *cli.Context) error {
 
-		ctx := context.Background()
-		db := sqldb.Connect()
-		existingEntryId := ""
-		var existingContent string
+		var (
+			db              *bun.DB         = sqldb.Connect()
+			ctx             context.Context = context.Background()
+			existingEntryId string          = ""
+			existingContent string          = ""
+		)
 
 		err := db.NewSelect().
 			Model(&sqldb.JournalEntry{}).
@@ -58,6 +61,8 @@ var TodayCmd = &cli.Command{
 		_, err = db.NewInsert().
 			Model(&entry).
 			On("CONFLICT (id) DO UPDATE").
+			Set("updated_at = EXCLUDED.updated_at").
+			Set("content = EXCLUDED.content").
 			Returning("id").
 			Exec(ctx)
 
