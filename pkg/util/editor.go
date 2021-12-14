@@ -4,13 +4,20 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 )
 
 func GetNewEntry(content string) string {
 	file, err := os.CreateTemp("", "today-*.md")
 	CheckError(err)
 
-	_, err = file.WriteString(content)
+	contentToWrite := content
+	if contentToWrite == "" {
+		todayDate := time.Now().Format("Monday, January 2 2006")
+		contentToWrite = "# " + todayDate + "\n\n"
+	}
+
+	_, err = file.WriteString(contentToWrite)
 	CheckError(err)
 
 	OpenNoteWithEditor(file.Name())

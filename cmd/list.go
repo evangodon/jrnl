@@ -73,8 +73,7 @@ func getJournalEntries() tea.Msg {
 		Scan(ctx, &journalEntries)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-		} else {
+		if err != sql.ErrNoRows {
 			log.Fatal(err)
 		}
 	}
