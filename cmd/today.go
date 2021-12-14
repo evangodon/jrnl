@@ -29,12 +29,11 @@ var TodayCmd = &cli.Command{
 		err := db.NewSelect().
 			Model(&sqldb.JournalEntry{}).
 			Column("id", "content").
-			Where("DATE(created_at) = DATE('now')").
+			Where("DATE(created_at, 'localtime') = DATE('now', 'localtime')").
 			Scan(ctx, &existingEntryId, &existingContent)
 
 		if err != nil {
-			if err == sql.ErrNoRows {
-			} else {
+			if err != sql.ErrNoRows {
 				log.Fatal(err)
 			}
 		}
@@ -42,7 +41,11 @@ var TodayCmd = &cli.Command{
 		content := util.GetNewEntry(existingContent)
 
 		if content == "" {
-			fmt.Println("No content found. Exiting.")
+			os.Exit(0)
+		}
+
+		if content == existingContent {
+			fmt.Println("No changes made.")
 			os.Exit(0)
 		}
 
