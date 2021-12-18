@@ -21,7 +21,7 @@ var db *bun.DB
 var devENV = os.Getenv("DEV")
 var isDev = devENV == "true"
 
-func getDBPATH() string {
+func GetDbPath() string {
 	if isDev {
 		return "./.dev/jrnl.db"
 	} else {
@@ -39,7 +39,7 @@ func logQueries() bool {
 }
 
 func Connect() *bun.DB {
-	DB_PATH := getDBPATH()
+	DB_PATH := GetDbPath()
 
 	if f, err := os.Stat(DB_PATH); f.Size() == 0 {
 		util.CheckError(err)
