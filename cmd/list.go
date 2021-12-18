@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"jrnl/pkg/sqldb"
+	"jrnl/pkg/ui"
 	"jrnl/pkg/util"
 	"log"
 
@@ -112,8 +113,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case entries:
 		m.list.Title = "Journal Entries"
 		m.list.Styles.Title = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#fff")).
-			Background(lipgloss.Color("#8b5cf6")).
+			Foreground(ui.ColorWhite).
+			Background(ui.ColorPrimary).
 			Padding(0, 1)
 		m.list.SetHeight(m.window.height)
 
