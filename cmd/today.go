@@ -8,6 +8,7 @@ import (
 	"jrnl/pkg/util"
 	"log"
 	"os"
+	"time"
 
 	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
@@ -36,6 +37,11 @@ var TodayCmd = &cli.Command{
 			if err != sql.ErrNoRows {
 				log.Fatal(err)
 			}
+		}
+
+		if existingContent == "" {
+			todayDate := time.Now().Format("Monday, January 2 2006")
+			existingContent = "# " + todayDate + "\n\n"
 		}
 
 		content := util.GetNewEntry(existingContent)
