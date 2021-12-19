@@ -8,4 +8,5 @@ const (
 	ColorPrimary   = lg.Color("#a855f7")
 	ColorSecondary = lg.Color("#e0e0e0")
 	ColorWhite     = lg.Color("#ffffff")
+	ColorGreyLight = lg.Color("#334155")
 )

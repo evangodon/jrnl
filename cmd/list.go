@@ -8,11 +8,10 @@ import (
 	"jrnl/pkg/ui"
 	"jrnl/pkg/util"
 	"log"
+	"time"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
 )
@@ -35,29 +34,36 @@ var ListCmd = &cli.Command{
 	},
 }
 
-type window struct {
-	height int
-	width  int
-}
-
-type Entry struct {
-	content string
-}
-
 type model struct {
-	list    list.Model
-	entries map[int]Entry
-	window  window
+	list ui.List
 }
+
+type item struct {
+	itemNum   int
+	createdAt time.Time
+	content   string
+}
+
+func (i item) Title() string { return fmt.Sprintf("Journal #%d", i.itemNum) }
+
+func (i item) Description() string {
+	return util.FormatToLocalTime(i.createdAt, "Monday, January 2, 2006")
+}
+
+func (i item) GetContent() string {
+	out, err := glamour.Render(i.content, "dark")
+	util.CheckError(err)
+
+	return out
+}
+
+func (i item) FilterValue() string { return i.createdAt.String() }
 
 func initialModel() model {
 	return model{
-		list:    list.NewModel([]list.Item{}, list.NewDefaultDelegate(), 0, 0),
-		entries: map[int]Entry{},
+		list: ui.CreateList("Journal Entries"),
 	}
 }
-
-type entries []sqldb.JournalEntry
 
 func getJournalEntries() tea.Msg {
 	var (
@@ -79,7 +85,13 @@ func getJournalEntries() tea.Msg {
 		}
 	}
 
-	return entries(journalEntries)
+	var items []ui.ListItem
+	for index, entry := range journalEntries {
+		var item ui.ListItem = item{itemNum: len(journalEntries) - index, createdAt: entry.CreatedAt, content: entry.Content}
+		items = append(items, item)
+	}
+
+	return items
 }
 
 func (m model) Init() tea.Cmd {
@@ -87,78 +99,11 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	cmd := m.list.HandleMessage(msg)
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-
-		switch msg.String() {
-
-		case "ctrl+c", "q":
-			return m, tea.Quit
-
-		case "up", "k":
-			m.list.CursorUp()
-
-		case "down", "j":
-			m.list.CursorDown()
-
-		case "?":
-			m.list.SetShowHelp(true)
-		}
-
-	case tea.WindowSizeMsg:
-		m.window.width = msg.Width
-		m.window.height = msg.Height
-
-	case entries:
-		m.list.Title = "Journal Entries"
-		m.list.Styles.Title = lipgloss.NewStyle().
-			Foreground(ui.ColorWhite).
-			Background(ui.ColorPrimary).
-			Padding(0, 1)
-		m.list.SetHeight(m.window.height)
-
-		entries := msg
-		for index, entry := range entries {
-			date := util.FormatToLocalTime(entry.CreatedAt, "Monday, January 2, 2006")
-
-			m.list.InsertItem(index, item{
-				title: fmt.Sprintf("Journal #%v", len(entries)-index),
-				date:  date,
-			})
-			m.entries[index] = Entry{
-				content: entry.Content,
-			}
-		}
-	}
-
-	return m, nil
+	return m, cmd
 }
-
-type item struct {
-	title string
-	date  string
-}
-
-func (i item) Title() string       { return i.title }
-func (i item) Description() string { return i.date }
-func (i item) FilterValue() string { return i.date }
 
 func (m model) View() string {
-
-	list := m.list.View()
-	content := m.entries[m.list.Cursor()].content
-
-	renderedContent, err := glamour.Render(content, "dark")
-	util.CheckError(err)
-
-	leftSide := lipgloss.NewStyle().
-		MarginRight(3).
-		Render(list)
-	rightSide := lipgloss.NewStyle().
-		Padding(2, 1).
-		Height(m.window.height - 2).
-		Render(renderedContent)
-
-	return lipgloss.JoinHorizontal(lipgloss.Top, leftSide, rightSide)
+	return m.list.View()
 }
