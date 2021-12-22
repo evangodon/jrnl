@@ -84,9 +84,10 @@ func getJournalEntries(c *cli.Context) tea.Msg {
 	var journalEntries []item
 
 	err := db.NewSelect().
-		Model(&sqldb.JournalEntry{}).
+		Model(&sqldb.Entry{}).
 		Column("created_at", "content").
 		Order("created_at DESC").
+		Where("type = ?", sqldb.EntryType.Journal).
 		Where(whereClause).
 		Scan(ctx, &journalEntries)
 

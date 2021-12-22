@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var ShowDBPath = &cli.Command{
+var ShowDbPathCmd = &cli.Command{
 	Name:    "showdbpath",
 	Aliases: []string{"sdp"},
 	Usage:   "Show the path to the database",

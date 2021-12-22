@@ -11,7 +11,7 @@ import (
 func main() {
 
 	app := &cli.App{
-		Commands: []*cli.Command{cmd.TodayCmd, cmd.ListCmd, cmd.ShowDBPath},
+		Commands: []*cli.Command{cmd.TodayCmd, cmd.ListCmd, cmd.ShowDbPathCmd, cmd.TILCmd},
 	}
 
 	err := app.Run(os.Args)

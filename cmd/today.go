@@ -16,7 +16,7 @@ import (
 
 var TodayCmd = &cli.Command{
 	Name:    "today",
-	Aliases: []string{"n"},
+	Aliases: []string{"t"},
 	Usage:   "Create a new journal entry for today",
 	Action: func(c *cli.Context) error {
 
@@ -28,7 +28,7 @@ var TodayCmd = &cli.Command{
 		)
 
 		err := db.NewSelect().
-			Model(&sqldb.JournalEntry{}).
+			Model(&sqldb.Entry{}).
 			Column("id", "content").
 			Where("DATE(created_at, 'localtime') = DATE('now', 'localtime')").
 			Scan(ctx, &existingEntryId, &existingContent)
@@ -62,8 +62,9 @@ var TodayCmd = &cli.Command{
 			id = sqldb.CreateId()
 		}
 
-		entry := sqldb.JournalEntry{
+		entry := sqldb.Entry{
 			Id:      id,
+			Type:    sqldb.EntryType.Journal,
 			Content: content,
 		}
 

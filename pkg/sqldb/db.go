@@ -1,7 +1,6 @@
 package sqldb
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"os"
@@ -23,7 +22,7 @@ var isDev = devENV == "true"
 
 func GetDbPath() string {
 	if isDev {
-		return "./.dev/jrnl.db"
+		return "./testdb/jrnl.db"
 	} else {
 		home := os.Getenv("HOME")
 		path := filepath.Join(home, ".data/jrnl", "jrnl.db")
@@ -41,9 +40,8 @@ func logQueries() bool {
 func Connect() *bun.DB {
 	DB_PATH := GetDbPath()
 
-	if f, err := os.Stat(DB_PATH); f.Size() == 0 {
-		util.CheckError(err)
-		CreateDB(DB_PATH)
+	if _, err := os.Stat(DB_PATH); err != nil {
+		CreateNewDB(DB_PATH)
 		fmt.Println("Created new database")
 	}
 
@@ -55,21 +53,6 @@ func Connect() *bun.DB {
 	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(verbose)))
 
 	return db
-
-}
-
-func CreateDB(dbfile string) {
-	ctx := context.Background()
-	dir := filepath.Dir(dbfile)
-
-	os.MkdirAll(dir, 0755)
-
-	sqlite, err := sql.Open(sqliteshim.ShimName, dbfile)
-	util.CheckError(err)
-	db = bun.NewDB(sqlite, sqlitedialect.New())
-
-	db.NewCreateTable().Model(&JournalEntry{}).Exec(ctx)
-
 }
 
 func CreateId() string {

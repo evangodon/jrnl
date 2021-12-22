@@ -5,6 +5,8 @@ go 1.17
 require (
 	github.com/charmbracelet/bubbles v0.9.0
 	github.com/charmbracelet/bubbletea v0.19.1
+	github.com/charmbracelet/glamour v0.3.0
+	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/uptrace/bun v1.0.19
 	github.com/uptrace/bun/dialect/sqlitedialect v1.0.19
@@ -17,8 +19,6 @@ require (
 	github.com/alecthomas/chroma v0.8.2 // indirect
 	github.com/atotto/clipboard v0.1.2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
-	github.com/charmbracelet/glamour v0.3.0 // indirect
-	github.com/charmbracelet/lipgloss v0.4.0 // indirect
 	github.com/containerd/console v1.0.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964 // indirect
