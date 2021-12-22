@@ -7,6 +7,8 @@ import (
 	"os/exec"
 )
 
+// GetEditor creates a temporary file and opens it with the default editor,
+// and then returns the content written to that file.
 func GetNewEntry(content string) string {
 	file, err := os.CreateTemp("", "today-*.md")
 	CheckError(err)
