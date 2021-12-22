@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 )
@@ -32,21 +33,15 @@ func OpenNoteWithEditor(notePath string) {
 		os.Exit(1)
 	}
 
-	editorCmd := exec.Command(editor, notePath)
+	e := exec.Command(editor, notePath)
 
-	editorCmd.Stdin = os.Stdin
-	editorCmd.Stdout = os.Stdout
-	editorCmd.Stderr = os.Stderr
+	e.Stdin = os.Stdin
+	e.Stdout = os.Stdout
+	e.Stderr = os.Stderr
 
-	err := editorCmd.Start()
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = editorCmd.Wait()
+	err := e.Run()
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
