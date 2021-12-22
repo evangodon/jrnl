@@ -24,8 +24,8 @@ func CreateList(title string) List {
 	list.model = bubbleList.NewModel([]bubbleList.Item{}, bubbleList.NewDefaultDelegate(), 0, 0)
 	list.model.Title = title
 	list.model.Styles.Title = lg.NewStyle().
-		Foreground(ColorWhite).
-		Background(ColorPrimary).
+		Foreground(Color.White).
+		Background(Color.Primary).
 		Padding(0, 1)
 
 	list.entries = map[int]ListItem{}
@@ -54,7 +54,6 @@ func (l *List) SetHeight(height int) {
 func (l *List) HandleMessage(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-
 		switch msg.String() {
 
 		case "ctrl+c", "q":
@@ -80,9 +79,7 @@ func (l *List) HandleMessage(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-const (
-	leftSidemarginTop = 3
-)
+const leftSidemarginTop = 3
 
 func (l *List) View() string {
 	list := l.model.View()
@@ -99,7 +96,7 @@ func (l *List) View() string {
 	rightSide := lg.NewStyle().
 		MarginTop(2).
 		BorderStyle(lg.RoundedBorder()).
-		BorderForeground(ColorGreyLight).
+		BorderForeground(Color.GreyLight).
 		Height(l.height - 8).
 		Render(content)
 

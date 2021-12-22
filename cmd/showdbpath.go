@@ -16,7 +16,7 @@ var ShowDbPathCmd = &cli.Command{
 	Action: func(c *cli.Context) error {
 
 		path := lg.NewStyle().
-			Background(ui.ColorPrimary).
+			Background(ui.Color.Primary).
 			Padding(0, 2).
 			Render(sqldb.GetDbPath())
 
