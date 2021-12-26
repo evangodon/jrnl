@@ -15,7 +15,11 @@ import (
 	"github.com/uptrace/bun/extra/bundebug"
 )
 
-var db *bun.DB
+type DB struct {
+	*bun.DB
+}
+
+var db DB
 
 var devENV = os.Getenv("DEV")
 var isDev = devENV == "true"
@@ -37,7 +41,7 @@ func logQueries() bool {
 	return shouldLog && isDev
 }
 
-func Connect() *bun.DB {
+func Connect() DB {
 	DB_PATH := GetDbPath()
 
 	if _, err := os.Stat(DB_PATH); err != nil {
@@ -47,7 +51,7 @@ func Connect() *bun.DB {
 
 	sqlite, err := sql.Open(sqliteshim.ShimName, DB_PATH)
 	util.CheckError(err)
-	db = bun.NewDB(sqlite, sqlitedialect.New())
+	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
 
 	verbose := logQueries()
 	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(verbose)))
@@ -55,8 +59,10 @@ func Connect() *bun.DB {
 	return db
 }
 
+const ID_LENGTH = 16
+
 func CreateId() string {
-	id, err := gonanoid.Generate("abcdefghijklmnopqrstuvwxyz0123456789", 16)
+	id, err := gonanoid.Generate("abcdefghijklmnopqrstuvwxyz0123456789", ID_LENGTH)
 	util.CheckError(err)
 
 	return id

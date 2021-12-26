@@ -6,13 +6,21 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type Entry struct {
-	bun.BaseModel `bun:"table:entries"`
+type Journal struct {
+	bun.BaseModel `bun:"table:journal"`
 
 	Id        string    `bun:"id,pk"`
 	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	UpdatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
-	Type      string    `bun:",nullzero,notnull,default:'journal'"`
+	Content   string    `bun:"content,notnull"`
+}
+
+type TIL struct {
+	bun.BaseModel `bun:"table:today_i_learnt"`
+
+	Id        string    `bun:"id,pk"`
+	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
+	UpdatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	Content   string    `bun:"content,notnull"`
 }
 

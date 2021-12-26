@@ -22,7 +22,7 @@ func CreateNewDB(dbfile string) {
 
 	sqlite, err := sql.Open(sqliteshim.ShimName, dbfile)
 	util.CheckError(err)
-	db = bun.NewDB(sqlite, sqlitedialect.New())
+	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
 
-	db.NewCreateTable().Model(&Entry{}).Exec(ctx)
+	db.NewCreateTable().Model(&Journal{}).Exec(ctx)
 }

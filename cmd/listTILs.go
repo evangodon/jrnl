@@ -13,7 +13,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
-	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
 )
 
@@ -52,8 +51,9 @@ func (i tilItem) Description() string {
 	maxLength := 50
 	description := i.Content
 
-	if len(i.Content) > maxLength {
-		description = strings.Split(i.Content, "")[0][:maxLength]
+	if len(description) > maxLength {
+		description = fmt.Sprintf("%s...", description[:maxLength])
+		description = fmt.Sprintf("%s\n%s", description[:maxLength/2], description[maxLength/2:])
 	}
 
 	return strings.TrimSpace(description)
@@ -78,17 +78,16 @@ func initialListTilsModel(c *cli.Context) listTilsModel {
 
 func getTilsEntries(c *cli.Context) tea.Msg {
 	var (
-		db  *bun.DB         = sqldb.Connect()
+		db  sqldb.DB        = sqldb.Connect()
 		ctx context.Context = context.Background()
 	)
 
 	var tilEntries []tilItem
 
 	err := db.NewSelect().
-		Model(&sqldb.Entry{}).
+		Model(&sqldb.TIL{}).
 		Column("created_at", "content").
 		Order("created_at DESC").
-		Where("type = ?", sqldb.EntryType.TIL).
 		Scan(ctx, &tilEntries)
 
 	if err != nil {
@@ -99,7 +98,11 @@ func getTilsEntries(c *cli.Context) tea.Msg {
 
 	var items []ui.ListItem
 	for index, entry := range tilEntries {
-		var item ui.ListItem = tilItem{itemNum: len(tilEntries) - index, CreatedAt: entry.CreatedAt, Content: entry.Content}
+		var item ui.ListItem = tilItem{
+			itemNum:   len(tilEntries) - index,
+			CreatedAt: entry.CreatedAt,
+			Content:   entry.Content,
+		}
 		items = append(items, item)
 	}
 

@@ -93,12 +93,16 @@ func (l *List) View() string {
 		MarginRight(3).
 		MarginTop(leftSidemarginTop).
 		Render(list)
-	rightSide := lg.NewStyle().
-		MarginTop(2).
-		BorderStyle(lg.RoundedBorder()).
-		BorderForeground(Color.GreyLight).
-		Height(l.height - 8).
-		Render(content)
+
+	rightSide := ""
+	if len(content) > 0 {
+		rightSide = lg.NewStyle().
+			MarginTop(2).
+			BorderStyle(lg.RoundedBorder()).
+			BorderForeground(ColorGreyLight).
+			Height(l.height - 8).
+			Render(content)
+	}
 
 	return lg.JoinHorizontal(lg.Top, leftSide, rightSide)
 }
