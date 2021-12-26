@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"jrnl/pkg/sqldb"
 	"jrnl/pkg/util"
 
-	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
 )
 
@@ -16,7 +16,7 @@ var TILCmd = &cli.Command{
 	Action: func(c *cli.Context) error {
 
 		var (
-			db  *bun.DB         = sqldb.Connect()
+			db  sqldb.DB        = sqldb.Connect()
 			ctx context.Context = context.Background()
 		)
 
@@ -24,9 +24,8 @@ var TILCmd = &cli.Command{
 
 		id := sqldb.CreateId()
 
-		entry := sqldb.Entry{
+		entry := sqldb.TIL{
 			Id:      id,
-			Type:    sqldb.EntryType.TIL,
 			Content: content,
 		}
 		_, err := db.NewInsert().
@@ -35,6 +34,8 @@ var TILCmd = &cli.Command{
 			Exec(ctx)
 
 		util.CheckError(err)
+
+		fmt.Println("TIL entry added.")
 
 		return nil
 	},

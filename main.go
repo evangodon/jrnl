@@ -9,9 +9,14 @@ import (
 )
 
 func main() {
-
 	app := &cli.App{
-		Commands: []*cli.Command{cmd.TodayCmd, cmd.ListCmd, cmd.ShowDbPathCmd, cmd.TILCmd},
+		Commands: []*cli.Command{
+			cmd.TodayCmd,
+			cmd.ListCmd,
+			cmd.ShowDbPathCmd,
+			cmd.TILCmd,
+			cmd.EditCmd,
+		},
 	}
 
 	err := app.Run(os.Args)

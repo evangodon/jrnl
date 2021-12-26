@@ -12,7 +12,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
-	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
 )
 
@@ -72,7 +71,7 @@ func initialListJournalsModel(c *cli.Context) listJournalsModel {
 
 func getJournalEntries(c *cli.Context) tea.Msg {
 	var (
-		db  *bun.DB         = sqldb.Connect()
+		db  sqldb.DB        = sqldb.Connect()
 		ctx context.Context = context.Background()
 	)
 
@@ -84,10 +83,9 @@ func getJournalEntries(c *cli.Context) tea.Msg {
 	var journalEntries []journalItem
 
 	err := db.NewSelect().
-		Model(&sqldb.Entry{}).
+		Model(&sqldb.Journal{}).
 		Column("created_at", "content").
 		Order("created_at DESC").
-		Where("type = ?", sqldb.EntryType.Journal).
 		Where(whereClause).
 		Scan(ctx, &journalEntries)
 

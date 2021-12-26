@@ -10,7 +10,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/uptrace/bun"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,14 +20,14 @@ var TodayCmd = &cli.Command{
 	Action: func(c *cli.Context) error {
 
 		var (
-			db              *bun.DB         = sqldb.Connect()
+			db              sqldb.DB        = sqldb.Connect()
 			ctx             context.Context = context.Background()
 			existingEntryId string          = ""
 			existingContent string          = ""
 		)
 
 		err := db.NewSelect().
-			Model(&sqldb.Entry{}).
+			Model(&sqldb.Journal{}).
 			Column("id", "content").
 			Where("DATE(created_at, 'localtime') = DATE('now', 'localtime')").
 			Scan(ctx, &existingEntryId, &existingContent)
@@ -62,9 +61,8 @@ var TodayCmd = &cli.Command{
 			id = sqldb.CreateId()
 		}
 
-		entry := sqldb.Entry{
+		entry := sqldb.Journal{
 			Id:      id,
-			Type:    sqldb.EntryType.Journal,
 			Content: content,
 		}
 

@@ -99,7 +99,7 @@ func (l *List) View() string {
 		rightSide = lg.NewStyle().
 			MarginTop(2).
 			BorderStyle(lg.RoundedBorder()).
-			BorderForeground(ColorGreyLight).
+			BorderForeground(Color.GreyLight).
 			Height(l.height - 8).
 			Render(content)
 	}
