@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func main() {
+func run(args []string) error {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			cmd.TodayCmd,
@@ -19,10 +19,14 @@ func main() {
 		},
 	}
 
-	err := app.Run(os.Args)
+	return app.Run(args)
+}
+
+func main() {
+	err := run(os.Args)
 
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
-
 }

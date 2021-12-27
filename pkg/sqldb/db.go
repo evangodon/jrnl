@@ -21,8 +21,8 @@ type DB struct {
 
 var db DB
 
-var devENV = os.Getenv("DEV")
-var isDev = devENV == "true"
+var isDev = os.Getenv("DEV") == "true"
+var enableLogs = os.Getenv("JRNL_ENABLE_LOGS") == "true"
 
 func GetDbPath() string {
 	if isDev {
@@ -33,12 +33,6 @@ func GetDbPath() string {
 
 		return path
 	}
-}
-
-func logQueries() bool {
-	var logENV = os.Getenv("JRNL_LOG_QUERIES")
-	var shouldLog = logENV == "true"
-	return shouldLog && isDev
 }
 
 func Connect() DB {
@@ -53,8 +47,7 @@ func Connect() DB {
 	util.CheckError(err)
 	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
 
-	verbose := logQueries()
-	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(verbose)))
+	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(enableLogs)))
 
 	return db
 }
