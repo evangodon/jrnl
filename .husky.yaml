@@ -1,0 +1,8 @@
+hooks:
+  pre-commit:
+    - husky lint-staged
+    - go test ./...
+
+lint-staged:
+  '*.go':
+    - gofmt -l -w
