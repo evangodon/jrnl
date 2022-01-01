@@ -7,17 +7,31 @@ import (
 	"jrnl/pkg/sqldb"
 	"jrnl/pkg/util"
 	"log"
-	"os"
-	"time"
+	"regexp"
 
 	"github.com/urfave/cli/v2"
 )
 
-var TodayCmd = &cli.Command{
-	Name:    "today",
-	Aliases: []string{"t"},
-	Usage:   "Create a new journal entry for today",
+var NewCmd = &cli.Command{
+	Name:    "new",
+	Aliases: []string{"n"},
+	Usage:   "Create a new journal entry",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "date",
+			Aliases: []string{"d"},
+			Value:   "date",
+			Usage:   "Date of the entry",
+		},
+	},
 	Action: func(c *cli.Context) error {
+
+		date := c.String("date")
+		r, _ := regexp.Compile("[0-9]{4}-[0-9]{2}-[0-9]{2}")
+
+		if !r.MatchString(date) {
+			return cli.Exit("Invalid date format. Use YYYY-MM-DD", 1)
+		}
 
 		var (
 			db              sqldb.DB        = sqldb.Connect()
@@ -29,7 +43,7 @@ var TodayCmd = &cli.Command{
 		err := db.NewSelect().
 			Model(&sqldb.Journal{}).
 			Column("id", "content").
-			Where("DATE(created_at, 'localtime') = DATE('now', 'localtime')").
+			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date)).
 			Scan(ctx, &existingEntryId, &existingContent)
 
 		if err != nil {
@@ -38,20 +52,16 @@ var TodayCmd = &cli.Command{
 			}
 		}
 
+		var entryDate = util.CreateTimeDate(date)
 		if existingContent == "" {
-			todayDate := time.Now().Format("Monday, January 2 2006")
-			existingContent = "# " + todayDate + "\n\n"
+			formattedDate := entryDate.Format("Monday, January 2 2006")
+			existingContent = "# " + formattedDate + "\n\n"
 		}
 
 		content := util.GetNewEntry(existingContent)
 
-		if content == "" {
-			os.Exit(0)
-		}
-
 		if content == existingContent {
-			fmt.Println("No changes made.")
-			os.Exit(0)
+			return cli.Exit("No changes were made", 0)
 		}
 
 		var id string
@@ -61,13 +71,14 @@ var TodayCmd = &cli.Command{
 			id = sqldb.CreateId()
 		}
 
-		entry := sqldb.Journal{
-			Id:      id,
-			Content: content,
+		journalEntry := sqldb.Journal{
+			Id:        id,
+			CreatedAt: entryDate,
+			Content:   content,
 		}
 
 		_, err = db.NewInsert().
-			Model(&entry).
+			Model(&journalEntry).
 			On("CONFLICT (id) DO UPDATE").
 			Set("updated_at = EXCLUDED.updated_at").
 			Set("content = EXCLUDED.content").
@@ -76,11 +87,12 @@ var TodayCmd = &cli.Command{
 		util.CheckError(err)
 
 		if existingEntryId != "" {
-			fmt.Println("Today's entry updated.")
+			fmt.Println("Entry updated")
 		} else {
-			fmt.Println("Entry added for today.")
+			fmt.Println("Entry added")
 		}
 
 		return nil
+
 	},
 }

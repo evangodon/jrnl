@@ -1,6 +1,11 @@
 package util
 
-import "time"
+import (
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+)
 
 const LOCAL_TIME_ZONE = "America/New_York"
 
@@ -10,4 +15,21 @@ func FormatToLocalTime(date time.Time, format string) string {
 	CheckError(err)
 
 	return date.In(location).Format(format)
+}
+
+// CreateTimeDate creates a time.Time from a string using the YYYY-MM-DD format.
+func CreateTimeDate(date string) time.Time {
+	r, _ := regexp.Compile("[0-9]{4}-[0-9]{2}-[0-9]{2}")
+
+	if !r.MatchString(date) {
+		panic("Invalid date format used.  Use YYYY-MM-DD")
+	}
+
+	dateArgs := strings.Split(date, "-")
+	year, _ := strconv.Atoi(dateArgs[0])
+	month, _ := strconv.Atoi(dateArgs[1])
+	day, _ := strconv.Atoi(dateArgs[2])
+
+	return time.
+		Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
 }

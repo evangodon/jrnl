@@ -16,6 +16,7 @@ func run(args []string) error {
 			cmd.ShowDbPathCmd,
 			cmd.TILCmd,
 			cmd.EditCmd,
+			cmd.NewCmd,
 		},
 	}
 
