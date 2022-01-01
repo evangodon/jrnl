@@ -10,9 +10,8 @@ import (
 )
 
 var TILCmd = &cli.Command{
-	Name:    "til",
-	Aliases: []string{"t"},
-	Usage:   "Create a new entry entry for something you learnt.",
+	Name:  "til",
+	Usage: "Create a new entry entry for something you learnt.",
 	Action: func(c *cli.Context) error {
 
 		var (

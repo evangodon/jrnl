@@ -11,12 +11,13 @@ import (
 func run(args []string) error {
 	app := &cli.App{
 		Commands: []*cli.Command{
-			cmd.TodayCmd,
+			cmd.EditCmd,
 			cmd.ListCmd,
+			cmd.NewCmd,
 			cmd.ShowDbPathCmd,
 			cmd.TILCmd,
-			cmd.EditCmd,
-			cmd.NewCmd,
+			cmd.TodayCmd,
+			cmd.YesterdayCmd,
 		},
 	}
 

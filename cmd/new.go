@@ -18,14 +18,14 @@ var NewCmd = &cli.Command{
 	Usage:   "Create a new journal entry",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    "date",
-			Aliases: []string{"d"},
-			Value:   "date",
-			Usage:   "Date of the entry",
+			Name:     "date",
+			Aliases:  []string{"d"},
+			Value:    "date",
+			Usage:    "Date of the entry",
+			Required: true,
 		},
 	},
 	Action: func(c *cli.Context) error {
-
 		date := c.String("date")
 		r, _ := regexp.Compile("[0-9]{4}-[0-9]{2}-[0-9]{2}")
 
