@@ -7,7 +7,6 @@ import (
 	"jrnl/pkg/sqldb"
 	"jrnl/pkg/util"
 	"log"
-	"regexp"
 
 	"github.com/urfave/cli/v2"
 )
@@ -17,21 +16,17 @@ var NewCmd = &cli.Command{
 	Aliases: []string{"n"},
 	Usage:   "Create a new journal entry",
 	Flags: []cli.Flag{
-		&cli.StringFlag{
+		&cli.TimestampFlag{
 			Name:     "date",
 			Aliases:  []string{"d"},
-			Value:    "date",
 			Usage:    "Date of the entry",
 			Required: true,
+			Layout:   "2006-01-02",
 		},
 	},
 	Action: func(c *cli.Context) error {
-		date := c.String("date")
-		r, _ := regexp.Compile("[0-9]{4}-[0-9]{2}-[0-9]{2}")
-
-		if !r.MatchString(date) {
-			return cli.Exit("Invalid date format. Use YYYY-MM-DD", 1)
-		}
+		date := c.Timestamp("date").Format("2006-01-02")
+		fmt.Println(date)
 
 		var (
 			db              sqldb.DB        = sqldb.Connect()
