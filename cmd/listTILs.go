@@ -67,7 +67,8 @@ func (i tilItem) GetContent() string {
 	return out
 }
 
-func (i tilItem) FilterValue() string { return i.CreatedAt.String() }
+func (i tilItem) FilterValue() string     { return i.CreatedAt.String() }
+func (i tilItem) GetCreatedAt() time.Time { return i.CreatedAt }
 
 func initialListTilsModel(c *cli.Context) listTilsModel {
 	return listTilsModel{
