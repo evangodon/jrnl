@@ -22,6 +22,7 @@ var ListJournalsCmd = &cli.Command{
 	Action: func(c *cli.Context) error {
 
 		p := tea.NewProgram(initialListJournalsModel(c))
+		tea.EnterAltScreen()
 
 		if err := p.Start(); err != nil {
 			fmt.Printf("Error occured: %v", err)
