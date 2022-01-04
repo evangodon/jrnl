@@ -33,3 +33,17 @@ func CreateTimeDate(date string) time.Time {
 	return time.
 		Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
 }
+
+// GetNumberOfDaysInMonth calculates the number of days in a given month.
+func GetNumberOfDaysInMonth(date time.Time) int {
+	year := date.Year()
+	month := date.Month()
+
+	return time.Date(year, month+1, 0, 0, 0, 0, 0, time.Local).Day()
+}
+
+// IsToday checks if the given date is today.
+func IsToday(date time.Time) bool {
+	n := time.Now()
+	return date.Year() == n.Year() && date.Month() == n.Month() && date.Day() == n.Day()
+}

@@ -59,7 +59,8 @@ func (i journalItem) GetContent() string {
 	return out
 }
 
-func (i journalItem) FilterValue() string { return i.CreatedAt.String() }
+func (i journalItem) FilterValue() string     { return i.CreatedAt.String() }
+func (i journalItem) GetCreatedAt() time.Time { return i.CreatedAt }
 
 func initialListJournalsModel(c *cli.Context) listJournalsModel {
 	return listJournalsModel{
@@ -96,7 +97,11 @@ func getJournalEntries(c *cli.Context) tea.Msg {
 
 	var items []ui.ListItem
 	for index, entry := range journalEntries {
-		var item ui.ListItem = journalItem{itemNum: len(journalEntries) - index, CreatedAt: entry.CreatedAt, Content: entry.Content}
+		var item ui.ListItem = journalItem{
+			itemNum:   len(journalEntries) - index,
+			CreatedAt: entry.CreatedAt,
+			Content:   entry.Content,
+		}
 		items = append(items, item)
 	}
 
