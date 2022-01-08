@@ -48,12 +48,11 @@ type tilItem struct {
 func (i tilItem) Title() string { return fmt.Sprintf("TIL #%d", i.itemNum) }
 
 func (i tilItem) Description() string {
-	maxLength := 50
 	description := i.Content
+	maxLength := 40
 
 	if len(description) > maxLength {
 		description = fmt.Sprintf("%s...", description[:maxLength])
-		description = fmt.Sprintf("%s\n%s", description[:maxLength/2], description[maxLength/2:])
 	}
 
 	return strings.TrimSpace(description)
