@@ -2,8 +2,9 @@ package ui
 
 import (
 	"fmt"
-	"jrnl/util"
 	"time"
+
+	util "github.com/evangodon/jrnl/util"
 
 	lg "github.com/charmbracelet/lipgloss"
 )

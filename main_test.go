@@ -26,5 +26,4 @@ func TestShowDBPath(t *testing.T) {
 	if err != nil {
 		t.Error("Error running showdbpath command: ", err)
 	}
-
 }

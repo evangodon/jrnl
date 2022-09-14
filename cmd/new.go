@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"jrnl/sqldb"
-	"jrnl/util"
 	"log"
+
+	sqldb "github.com/evangodon/jrnl/sqldb"
+	util "github.com/evangodon/jrnl/util"
 
 	"github.com/urfave/cli/v2"
 )

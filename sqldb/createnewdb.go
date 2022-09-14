@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"jrnl/util"
 	"os"
 	"path/filepath"
+
+	util "github.com/evangodon/jrnl/util"
 
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"

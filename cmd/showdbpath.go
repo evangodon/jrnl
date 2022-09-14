@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"jrnl/sqldb"
-	"jrnl/ui"
+
+	sqldb "github.com/evangodon/jrnl/sqldb"
+	ui "github.com/evangodon/jrnl/ui"
 
 	lg "github.com/charmbracelet/lipgloss"
 	"github.com/urfave/cli/v2"

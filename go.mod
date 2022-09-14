@@ -1,4 +1,4 @@
-module jrnl
+module github.com/evangodon/jrnl
 
 go 1.17
 

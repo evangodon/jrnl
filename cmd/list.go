@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"jrnl/sqldb"
-	"jrnl/ui"
-	"jrnl/util"
 	"log"
 	"time"
+
+	sqldb "github.com/evangodon/jrnl/sqldb"
+	ui "github.com/evangodon/jrnl/ui"
+	"github.com/evangodon/jrnl/util"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"jrnl/util"
+	util "github.com/evangodon/jrnl/util"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/uptrace/bun"

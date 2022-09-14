@@ -1,9 +1,10 @@
 package main
 
 import (
-	"jrnl/cmd"
 	"log"
 	"os"
+
+	"github.com/evangodon/jrnl/cmd"
 
 	"github.com/urfave/cli/v2"
 )

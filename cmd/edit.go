@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"jrnl/sqldb"
-	"jrnl/util"
 	"strconv"
+
+	sqldb "github.com/evangodon/jrnl/sqldb"
+
+	util "github.com/evangodon/jrnl/util"
 
 	"github.com/urfave/cli/v2"
 )
