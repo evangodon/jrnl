@@ -3,7 +3,7 @@ package sqldb
 import "context"
 
 type Item struct {
-	Id      string
+	ID      string
 	Content string
 }
 

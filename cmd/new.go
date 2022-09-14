@@ -67,7 +67,7 @@ var NewCmd = &cli.Command{
 		}
 
 		journalEntry := sqldb.Journal{
-			Id:        id,
+			ID:        id,
 			CreatedAt: entryDate,
 			Content:   content,
 		}

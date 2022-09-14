@@ -15,7 +15,6 @@ func run(args []string) error {
 			cmd.ListCmd,
 			cmd.NewCmd,
 			cmd.ShowDbPathCmd,
-			cmd.TILCmd,
 			cmd.TodayCmd,
 			cmd.YesterdayCmd,
 		},

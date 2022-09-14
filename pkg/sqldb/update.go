@@ -9,7 +9,7 @@ func (db *DB) UpdateEntryContent(model interface{}, item Item) (err error) {
 	_, err = db.NewUpdate().
 		Model(model).
 		Set("content = ?", item.Content).
-		Where("id = ?", item.Id).
+		Where("id = ?", item.ID).
 		Exec(ctx)
 
 	if err != nil {
