@@ -1,12 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
-	sqldb "github.com/evangodon/jrnl/sqldb"
-
-	util "github.com/evangodon/jrnl/util"
+	"github.com/evangodon/jrnl/db"
+	"github.com/evangodon/jrnl/util"
 
 	"github.com/urfave/cli/v2"
 )
@@ -15,22 +15,24 @@ var EditCmd = &cli.Command{
 	Name:    "edit",
 	Aliases: []string{"e"},
 	Usage:   "Edit an entry",
-	Action: func(c *cli.Context) error {
+	Before: func(c *cli.Context) error {
 		if c.NArg() == 0 {
 			return cli.Exit("Please provide an identifier", 1)
 		}
-
+		return nil
+	},
+	Action: func(c *cli.Context) error {
 		var (
-			db         = sqldb.Connect()
+			dbClient   = db.Connect()
 			identifier = c.Args().Get(0)
-			item       = sqldb.Journal{}
+			item       = db.Journal{}
+			ctx        = context.Background()
 		)
 
 		// Using row number as identifier
 		if rowNumber, err := strconv.Atoi(identifier); err == nil {
 
-			i, err := db.SelectEntryByRowNumber(&item, rowNumber)
-
+			i, err := dbClient.SelectEntryByRowNumber(ctx, &item, rowNumber)
 			util.CheckIfNoRowsFound(err, "No entry found at row "+identifier)
 
 			item.ID = i.ID
@@ -38,8 +40,8 @@ var EditCmd = &cli.Command{
 		}
 
 		//  Using id as identifier
-		if len(identifier) == sqldb.ID_LENGTH {
-			i, err := db.SelectEntryById(&item, identifier)
+		if len(identifier) == db.IDLength {
+			i, err := dbClient.SelectEntryByID(ctx, &item, identifier)
 
 			util.CheckIfNoRowsFound(err, "No entry found at row "+identifier)
 			item.ID = i.ID
@@ -57,7 +59,7 @@ var EditCmd = &cli.Command{
 			return nil
 		}
 
-		err := db.UpdateEntryContent(&item, sqldb.Item{
+		err := dbClient.UpdateEntryContent(ctx, &item, db.Item{
 			ID:      item.ID,
 			Content: editedContent,
 		})

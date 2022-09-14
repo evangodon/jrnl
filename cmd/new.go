@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	sqldb "github.com/evangodon/jrnl/sqldb"
+	db "github.com/evangodon/jrnl/db"
 	util "github.com/evangodon/jrnl/util"
 
 	"github.com/urfave/cli/v2"
@@ -30,14 +30,14 @@ var NewCmd = &cli.Command{
 		fmt.Println(date)
 
 		var (
-			db              = sqldb.Connect()
+			dbClient        = db.Connect()
 			ctx             = context.Background()
 			existingEntryID = ""
 			existingContent = ""
 		)
 
-		err := db.NewSelect().
-			Model(&sqldb.Journal{}).
+		err := dbClient.NewSelect().
+			Model(&db.Journal{}).
 			Column("id", "content").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date)).
 			Scan(ctx, &existingEntryID, &existingContent)
@@ -64,16 +64,16 @@ var NewCmd = &cli.Command{
 		if existingEntryID != "" {
 			id = existingEntryID
 		} else {
-			id = sqldb.CreateId()
+			id = db.CreateID()
 		}
 
-		journalEntry := sqldb.Journal{
+		journalEntry := db.Journal{
 			ID:        id,
 			CreatedAt: entryDate,
 			Content:   content,
 		}
 
-		_, err = db.NewInsert().
+		_, err = dbClient.NewInsert().
 			Model(&journalEntry).
 			On("CONFLICT (id) DO UPDATE").
 			Set("updated_at = EXCLUDED.updated_at").

@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	sqldb "github.com/evangodon/jrnl/sqldb"
+	"github.com/evangodon/jrnl/db"
 	ui "github.com/evangodon/jrnl/ui"
 
 	lg "github.com/charmbracelet/lipgloss"
@@ -19,7 +19,7 @@ var ShowDBPathCmd = &cli.Command{
 		path := lg.NewStyle().
 			Background(ui.Color.Primary).
 			Padding(0, 2).
-			Render(sqldb.GetDBPath())
+			Render(db.GetDBPath())
 
 		fmt.Println("\nDb path: ", path)
 

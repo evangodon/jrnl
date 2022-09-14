@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-const LOCAL_TIME_ZONE = "America/New_York"
+const LocalTimeZone = "America/New_York"
 
 // FormatToLocalTime formats a time.Time to a string using the given format and the local time zone.
 func FormatToLocalTime(date time.Time, format string) string {
-	location, err := time.LoadLocation(LOCAL_TIME_ZONE)
+	location, err := time.LoadLocation(LocalTimeZone)
 	CheckError(err)
 
 	return date.In(location).Format(format)

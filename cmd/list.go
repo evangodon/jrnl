@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	sqldb "github.com/evangodon/jrnl/sqldb"
+	db "github.com/evangodon/jrnl/db"
 	ui "github.com/evangodon/jrnl/ui"
 	"github.com/evangodon/jrnl/util"
 
@@ -73,8 +73,8 @@ func initialListJournalsModel(c *cli.Context) listJournalsModel {
 
 func getJournalEntries(c *cli.Context) tea.Msg {
 	var (
-		db  = sqldb.Connect()
-		ctx = context.Background()
+		dbClient = db.Connect()
+		ctx      = context.Background()
 	)
 
 	whereCondition := "true"
@@ -84,8 +84,8 @@ func getJournalEntries(c *cli.Context) tea.Msg {
 
 	var journalEntries []journalItem
 
-	err := db.NewSelect().
-		Model(&sqldb.Journal{}).
+	err := dbClient.NewSelect().
+		Model(&db.Journal{}).
 		Column("created_at", "content").
 		Order("created_at DESC").
 		Where(whereCondition).
