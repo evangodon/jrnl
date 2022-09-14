@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"jrnl/pkg/util"
+	"jrnl/util"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/uptrace/bun"
@@ -24,7 +24,7 @@ var db DB
 var isDev = os.Getenv("DEV") == "true"
 var enableLogs = os.Getenv("JRNL_ENABLE_LOGS") == "true"
 
-func GetDbPath() string {
+func GetDBPath() string {
 	if isDev {
 		return "./testdb/jrnl.db"
 	} else {
@@ -36,7 +36,7 @@ func GetDbPath() string {
 }
 
 func Connect() DB {
-	DB_PATH := GetDbPath()
+	DB_PATH := GetDBPath()
 
 	if _, err := os.Stat(DB_PATH); err != nil {
 		CreateNewDB(DB_PATH)

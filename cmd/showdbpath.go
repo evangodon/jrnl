@@ -2,23 +2,23 @@ package cmd
 
 import (
 	"fmt"
-	"jrnl/pkg/sqldb"
-	"jrnl/pkg/ui"
+	"jrnl/sqldb"
+	"jrnl/ui"
 
 	lg "github.com/charmbracelet/lipgloss"
 	"github.com/urfave/cli/v2"
 )
 
-var ShowDbPathCmd = &cli.Command{
+var ShowDBPathCmd = &cli.Command{
 	Name:    "showdbpath",
 	Aliases: []string{"sdp"},
 	Usage:   "Show the path to the database",
-	Action: func(c *cli.Context) error {
+	Action: func(_ *cli.Context) error {
 
 		path := lg.NewStyle().
 			Background(ui.Color.Primary).
 			Padding(0, 2).
-			Render(sqldb.GetDbPath())
+			Render(sqldb.GetDBPath())
 
 		fmt.Println("\nDb path: ", path)
 

@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"jrnl/pkg/sqldb"
-	"jrnl/pkg/ui"
-	"jrnl/pkg/util"
+	"jrnl/sqldb"
+	"jrnl/ui"
+	"jrnl/util"
 	"log"
 	"time"
 
@@ -72,13 +72,13 @@ func initialListJournalsModel(c *cli.Context) listJournalsModel {
 
 func getJournalEntries(c *cli.Context) tea.Msg {
 	var (
-		db  sqldb.DB        = sqldb.Connect()
-		ctx context.Context = context.Background()
+		db  = sqldb.Connect()
+		ctx = context.Background()
 	)
 
-	whereClause := "true"
+	whereCondition := "true"
 	if c.Bool("week") {
-		whereClause = "created_at >= date('now', 'weekday 0', '-7 days')"
+		whereCondition = "created_at >= date('now', 'weekday 0', '-7 days')"
 	}
 
 	var journalEntries []journalItem
@@ -87,7 +87,7 @@ func getJournalEntries(c *cli.Context) tea.Msg {
 		Model(&sqldb.Journal{}).
 		Column("created_at", "content").
 		Order("created_at DESC").
-		Where(whereClause).
+		Where(whereCondition).
 		Scan(ctx, &journalEntries)
 
 	if err != nil {
@@ -115,7 +115,6 @@ func (m listJournalsModel) Init() tea.Cmd {
 	}
 
 	return teaCmd
-
 }
 
 func (m listJournalsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

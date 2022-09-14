@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fmt"
-	"jrnl/pkg/util"
+	"jrnl/util"
 	"time"
 
 	lg "github.com/charmbracelet/lipgloss"
@@ -22,7 +22,16 @@ func CreateStreakLine(allEntries map[int]ListItem, activeEntry ListItem) string 
 	}
 
 	for i := 1; i <= numberOfdays+1; i++ {
-		p := time.Date(activeEntry.GetCreatedAt().Year(), activeEntry.GetCreatedAt().Month(), i, 0, 0, 0, 0, time.UTC)
+		p := time.Date(
+			activeEntry.GetCreatedAt().Year(),
+			activeEntry.GetCreatedAt().Month(),
+			i,
+			0,
+			0,
+			0,
+			0,
+			time.UTC,
+		)
 		if util.IsToday(p) {
 			var color lg.TerminalColor
 			if activeEntry.GetCreatedAt().Day() == i {

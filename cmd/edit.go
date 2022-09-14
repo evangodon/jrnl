@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"jrnl/pkg/sqldb"
-	"jrnl/pkg/util"
+	"jrnl/sqldb"
+	"jrnl/util"
 	"strconv"
 
 	"github.com/urfave/cli/v2"

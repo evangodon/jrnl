@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"jrnl/pkg/sqldb"
-	"jrnl/pkg/util"
+	"jrnl/sqldb"
+	"jrnl/util"
 	"log"
 
 	"github.com/urfave/cli/v2"
@@ -29,17 +29,17 @@ var NewCmd = &cli.Command{
 		fmt.Println(date)
 
 		var (
-			db              sqldb.DB        = sqldb.Connect()
-			ctx             context.Context = context.Background()
-			existingEntryId string          = ""
-			existingContent string          = ""
+			db              = sqldb.Connect()
+			ctx             = context.Background()
+			existingEntryID = ""
+			existingContent = ""
 		)
 
 		err := db.NewSelect().
 			Model(&sqldb.Journal{}).
 			Column("id", "content").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date)).
-			Scan(ctx, &existingEntryId, &existingContent)
+			Scan(ctx, &existingEntryID, &existingContent)
 
 		if err != nil {
 			if err != sql.ErrNoRows {
@@ -60,8 +60,8 @@ var NewCmd = &cli.Command{
 		}
 
 		var id string
-		if existingEntryId != "" {
-			id = existingEntryId
+		if existingEntryID != "" {
+			id = existingEntryID
 		} else {
 			id = sqldb.CreateId()
 		}
@@ -81,7 +81,7 @@ var NewCmd = &cli.Command{
 
 		util.CheckError(err)
 
-		if existingEntryId != "" {
+		if existingEntryID != "" {
 			fmt.Println("Entry updated")
 		} else {
 			fmt.Println("Entry added")

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"jrnl/pkg/util"
+	"jrnl/util"
 	"os"
 	"path/filepath"
 

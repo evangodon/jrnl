@@ -40,7 +40,6 @@ func (l *List) AddItems(listItems []ListItem) {
 	for index, listItem := range listItems {
 
 		l.model.InsertItem(index, listItem)
-
 		l.entries[index] = listItem
 	}
 }
