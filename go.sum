@@ -121,6 +121,8 @@ github.com/uptrace/bun/driver/sqliteshim v1.0.19 h1:nW7dfsEgAJ0Xv9HmRuRyeC3FOiIN
 github.com/uptrace/bun/driver/sqliteshim v1.0.19/go.mod h1:qeC2X9mnTDJzVHf30Ef4xsUp9k3yQOkp7+adAnBt4/w=
 github.com/uptrace/bun/extra/bundebug v1.0.19 h1:PBajhIUkeHk3ZOpH9ZLPhfGxiZlBS70nV/Nmufk4B7s=
 github.com/uptrace/bun/extra/bundebug v1.0.19/go.mod h1:SkanLrdjmx7P88mir9ls7X4mfQesJKgW++sKbbhdJ2c=
+github.com/uptrace/bunrouter v1.0.19 h1:kdN1Nl/9RDq9eBPnjS6GvNKcgiAeMxdb9DbpslLndFg=
+github.com/uptrace/bunrouter v1.0.19/go.mod h1:TwT7Bc0ztF2Z2q/ZzMuSVkcb/Ig/d3MQeP2cxn3e1hI=
 github.com/urfave/cli/v2 v2.3.0 h1:qph92Y649prgesehzOrQjdWyxFOp/QVM+6imKHad91M=
 github.com/urfave/cli/v2 v2.3.0/go.mod h1:LJmUH05zAU44vOAcrfzZQKsZbVcdbOG8rtL3/XcUArI=
 github.com/vmihailenco/msgpack/v5 v5.3.5 h1:5gO0H1iULLWGhs2H5tbAHIZTV8/cYafcFOr9znI5mJU=

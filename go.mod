@@ -12,6 +12,7 @@ require (
 	github.com/uptrace/bun/dialect/sqlitedialect v1.0.19
 	github.com/uptrace/bun/driver/sqliteshim v1.0.19
 	github.com/uptrace/bun/extra/bundebug v1.0.19
+	github.com/uptrace/bunrouter v1.0.19
 	github.com/urfave/cli/v2 v2.3.0
 )
 
