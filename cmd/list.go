@@ -7,9 +7,9 @@ import (
 	"log"
 	"time"
 
-	db "github.com/evangodon/jrnl/db"
-	ui "github.com/evangodon/jrnl/ui"
-	"github.com/evangodon/jrnl/util"
+	"github.com/evangodon/jrnl/internal/db"
+	"github.com/evangodon/jrnl/internal/ui"
+	"github.com/evangodon/jrnl/internal/util"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"

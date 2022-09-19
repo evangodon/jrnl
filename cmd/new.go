@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	db "github.com/evangodon/jrnl/db"
-	util "github.com/evangodon/jrnl/util"
+	"github.com/evangodon/jrnl/internal/db"
+	"github.com/evangodon/jrnl/internal/util"
 
 	"github.com/urfave/cli/v2"
 )
@@ -27,7 +27,6 @@ var NewCmd = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		date := c.Timestamp("date").Format("2006-01-02")
-		fmt.Println(date)
 
 		var (
 			dbClient        = db.Connect()

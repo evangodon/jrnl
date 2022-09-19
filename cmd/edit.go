@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/evangodon/jrnl/db"
-	"github.com/evangodon/jrnl/util"
+	"github.com/evangodon/jrnl/internal/db"
+	"github.com/evangodon/jrnl/internal/util"
 
 	"github.com/urfave/cli/v2"
 )
