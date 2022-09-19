@@ -18,7 +18,7 @@ var ServeCmd = &cli.Command{
 
 		app := &api.Application{
 			Cfg:      cfg,
-			DbClient: db.Connect(),
+			DBClient: db.Connect(),
 		}
 
 		app.Serve()

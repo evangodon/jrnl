@@ -1,6 +1,7 @@
 package util
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,11 +19,11 @@ func FormatToLocalTime(date time.Time, format string) string {
 }
 
 // CreateTimeDate creates a time.Time from a string using the YYYY-MM-DD format.
-func CreateTimeDate(date string) time.Time {
+func CreateTimeDate(date string) (time.Time, error) {
 	r, _ := regexp.Compile("[0-9]{4}-[0-9]{2}-[0-9]{2}")
 
 	if !r.MatchString(date) {
-		panic("Invalid date format used.  Use YYYY-MM-DD")
+		return time.Now(), errors.New("invalid date format used.  Use YYYY-MM-DD")
 	}
 
 	dateArgs := strings.Split(date, "-")
@@ -31,7 +32,7 @@ func CreateTimeDate(date string) time.Time {
 	day, _ := strconv.Atoi(dateArgs[2])
 
 	return time.
-		Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
+		Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local), nil
 }
 
 // GetNumberOfDaysInMonth calculates the number of days in a given month.

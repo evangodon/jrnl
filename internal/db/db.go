@@ -27,7 +27,8 @@ var enableLogs = os.Getenv("JRNL_ENABLE_LOGS") == "true"
 
 func GetDBPath() string {
 	if isDev {
-		return "./testdb/jrnl.db"
+		fmt.Println("Using dev database")
+		return "./tmp/devjrnl.db"
 	} else {
 		home := os.Getenv("HOME")
 		path := filepath.Join(home, ".data/jrnl", "jrnl.db")

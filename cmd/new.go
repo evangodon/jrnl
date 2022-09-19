@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"context"
-	"database/sql"
+	"bytes"
+	"encoding/json"
 	"fmt"
-	"log"
+	"net/http"
 
+	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/db"
 	"github.com/evangodon/jrnl/internal/util"
 
@@ -26,68 +27,69 @@ var NewCmd = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		date := c.Timestamp("date").Format("2006-01-02")
+		date := c.Timestamp("date")
 
-		var (
-			dbClient        = db.Connect()
-			ctx             = context.Background()
-			existingEntryID = ""
-			existingContent = ""
-		)
+		payload := struct {
+			Daily db.Journal `json:"daily"`
+		}{}
 
-		err := dbClient.NewSelect().
-			Model(&db.Journal{}).
-			Column("id", "content").
-			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date)).
-			Scan(ctx, &existingEntryID, &existingContent)
-
+		res, err := api.MakeRequest(http.MethodGet, "/daily", nil)
 		if err != nil {
-			if err != sql.ErrNoRows {
-				log.Fatal(err)
+			return err
+		}
+
+		err = json.Unmarshal(res.Body, &payload)
+		if err != nil {
+			return err
+		}
+
+		existingContent := func() string {
+			if payload.Daily.ID != "" {
+				return payload.Daily.Content
 			}
+			formattedDate := date.Format("Monday, January 2 2006")
+			return "# " + formattedDate + "\n\n"
+		}()
+
+		newContent := util.GetNewEntry(existingContent)
+
+		if newContent == existingContent {
+			fmt.Println("No changes made")
+			return nil
 		}
 
-		var entryDate = util.CreateTimeDate(date)
-		if existingContent == "" {
-			formattedDate := entryDate.Format("Monday, January 2 2006")
-			existingContent = "# " + formattedDate + "\n\n"
-		}
-
-		content := util.GetNewEntry(existingContent)
-
-		if content == existingContent {
-			return cli.Exit("No changes were made", 0)
-		}
-
-		var id string
-		if existingEntryID != "" {
-			id = existingEntryID
-		} else {
-			id = db.CreateID()
-		}
-
-		journalEntry := db.Journal{
-			ID:        id,
-			CreatedAt: entryDate,
-			Content:   content,
-		}
-
-		_, err = dbClient.NewInsert().
-			Model(&journalEntry).
-			On("CONFLICT (id) DO UPDATE").
-			Set("updated_at = EXCLUDED.updated_at").
-			Set("content = EXCLUDED.content").
-			Exec(ctx)
-
-		util.CheckError(err)
-
-		if existingEntryID != "" {
+		// Daily already exists for this day
+		if payload.Daily.ID != "" {
+			existingEntry, err := json.Marshal(db.Journal{
+				ID:        payload.Daily.ID,
+				CreatedAt: payload.Daily.CreatedAt,
+				Content:   newContent,
+			})
+			if err != nil {
+				return err
+			}
+			_, err = api.MakeRequest(http.MethodPatch, "/daily", bytes.NewBuffer(existingEntry))
+			if err != nil {
+				return err
+			}
 			fmt.Println("Entry updated")
-		} else {
-			fmt.Println("Entry added")
+			return nil
 		}
 
-		return nil
+		// Create new daily
+		newEntry, err := json.Marshal(db.Journal{
+			Content: newContent,
+		})
+		if err != nil {
+			return err
+		}
 
+		_, err = api.MakeRequest(http.MethodPost, "/daily/new", bytes.NewBuffer(newEntry))
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("New entry created for %s", date.Format("Monday, January 2 2006"))
+		return nil
 	},
 }

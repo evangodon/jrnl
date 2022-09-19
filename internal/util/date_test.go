@@ -20,7 +20,7 @@ func TestFormatToLocalTime(t *testing.T) {
 func TestCreateTimeDate(t *testing.T) {
 	date := "2014-11-28"
 
-	got := CreateTimeDate(date)
+	got, _ := CreateTimeDate(date)
 	want := time.Date(2014, time.November, 28, 0, 0, 0, 0, time.Local)
 
 	if got != want {

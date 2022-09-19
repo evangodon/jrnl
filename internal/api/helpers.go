@@ -2,15 +2,16 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
-type envelope map[string]interface{}
+type Envelope map[string]interface{}
 
 func (app *Application) writeJSON(
 	w http.ResponseWriter,
 	status int,
-	data envelope,
+	data Envelope,
 	headers http.Header,
 ) error {
 	json, err := json.MarshalIndent(data, "", "\t")
@@ -30,4 +31,15 @@ func (app *Application) writeJSON(
 	w.Write(json)
 
 	return nil
+}
+
+func (app *Application) UnexpectedError(w http.ResponseWriter, err error) {
+	log.Fatal(err)
+
+	app.writeJSON(
+		w,
+		http.StatusInternalServerError,
+		Envelope{"msg": "Unexpected error"},
+		nil,
+	)
 }

@@ -22,7 +22,7 @@ type Config struct {
 // ~~~~~ App ~~~~~ //
 type Application struct {
 	Cfg      Config
-	DbClient db.DB
+	DBClient db.DB
 }
 
 func (app Application) Serve() error {
@@ -42,7 +42,7 @@ func (app Application) Serve() error {
 		s := <-quit
 
 		fmt.Printf(
-			"Shutting down due to signal: %s",
+			"Shutting down due to signal: %s\n",
 			map[string]string{"signal": s.String()},
 		)
 
@@ -61,7 +61,7 @@ func (app Application) Serve() error {
 		return err
 	}
 
-	err = <-shutdownError
+	// err = <-shutdownError
 	if err != nil {
 		return err
 	}
