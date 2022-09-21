@@ -143,6 +143,7 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 	}
 }
 
+// PATCH daily
 func (app Application) updateDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		body, err := ioutil.ReadAll(req.Body)
@@ -174,7 +175,7 @@ func (app Application) updateDailyHandler() bunrouter.HandlerFunc {
 		app.writeJSON(
 			w,
 			http.StatusCreated,
-			Envelope{"msg": "daily created"},
+			Envelope{"msg": "daily updated"},
 			nil,
 		)
 		return nil

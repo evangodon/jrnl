@@ -60,7 +60,7 @@ var NewCmd = &cli.Command{
 
 		// Daily already exists for this day
 		if payload.Daily.ID != "" {
-			existingEntry, err := json.Marshal(db.Journal{
+			updatedEntry, err := json.Marshal(db.Journal{
 				ID:        payload.Daily.ID,
 				CreatedAt: payload.Daily.CreatedAt,
 				Content:   newContent,
@@ -68,7 +68,11 @@ var NewCmd = &cli.Command{
 			if err != nil {
 				return err
 			}
-			_, err = api.MakeRequest(http.MethodPatch, "/daily", bytes.NewBuffer(existingEntry))
+			_, err = api.MakeRequest(
+				http.MethodPatch,
+				"/daily/"+payload.Daily.ID,
+				bytes.NewBuffer(updatedEntry),
+			)
 			if err != nil {
 				return err
 			}

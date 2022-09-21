@@ -4,6 +4,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/evangodon/jrnl/internal/cfg"
 )
 
 type Res struct {
@@ -12,8 +14,7 @@ type Res struct {
 }
 
 func MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) {
-	// TODO: get base url from config file
-	baseURL := "http://localhost:8080"
+	baseURL := cfg.GetConfig().API.BaseURL
 	url := baseURL + path
 	req, _ := http.NewRequest(method, url, bodyParams)
 
@@ -33,8 +34,6 @@ func MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) 
 	res.Body.Close()
 
 	r.Body = body
-
-	// TODO: check status here
 
 	return r, nil
 }

@@ -18,8 +18,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestShowDBPath(t *testing.T) {
-	command := appName + " showdbpath"
+func TestShowPaths(t *testing.T) {
+	command := appName + " showpaths"
 
 	err := run(asArgs(command))
 

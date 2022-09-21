@@ -12,9 +12,9 @@ func (app Application) routes() http.Handler {
 	router.WithGroup("/daily", func(group *bunrouter.Group) {
 		group.GET("/", app.getDailyHandler())
 		group.GET("/:date", app.getDailyHandler())
+		group.PATCH("/:id", app.updateDailyHandler())
 		group.GET("/list", app.listDailyHandler())
 		group.POST("/new", app.newDailyHandler())
-		group.PATCH("/", app.updateDailyHandler())
 	})
 
 	return router
