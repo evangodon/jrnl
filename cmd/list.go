@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"context"
-	"database/sql"
+	"encoding/json"
 	"fmt"
-	"log"
+	"net/http"
 	"time"
 
+	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/db"
 	"github.com/evangodon/jrnl/internal/ui"
 	"github.com/evangodon/jrnl/internal/util"
@@ -72,35 +72,26 @@ func initialListJournalsModel(c *cli.Context) listJournalsModel {
 }
 
 func getJournalEntries(c *cli.Context) tea.Msg {
-	var (
-		dbClient = db.Connect()
-		ctx      = context.Background()
-	)
+	payload := struct {
+		DailyEntries []db.Journal `json:"daily_entries"`
+	}{}
 
-	whereCondition := "true"
-	if c.Bool("week") {
-		whereCondition = "created_at >= date('now', 'weekday 0', '-7 days')"
-	}
-
-	var journalEntries []journalItem
-
-	err := dbClient.NewSelect().
-		Model(&db.Journal{}).
-		Column("created_at", "content").
-		Order("created_at DESC").
-		Where(whereCondition).
-		Scan(ctx, &journalEntries)
-
+	res, err := api.MakeRequest(http.MethodGet, "/daily/list", nil)
 	if err != nil {
-		if err != sql.ErrNoRows {
-			log.Fatal(err)
-		}
+		return err
 	}
+
+	err = json.Unmarshal(res.Body, &payload)
+	if err != nil {
+		return err
+	}
+
+	entries := payload.DailyEntries
 
 	var items []ui.ListItem
-	for index, entry := range journalEntries {
+	for index, entry := range entries {
 		var item ui.ListItem = journalItem{
-			itemNum:   len(journalEntries) - index,
+			itemNum:   len(entries) - index,
 			CreatedAt: entry.CreatedAt,
 			Content:   entry.Content,
 		}

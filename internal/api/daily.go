@@ -183,8 +183,41 @@ func (app Application) updateDailyHandler() bunrouter.HandlerFunc {
 }
 
 // GET list daily entries
-func (Application) listDailyHandler() bunrouter.HandlerFunc {
-	return func(_ http.ResponseWriter, req bunrouter.Request) error {
+func (app *Application) listDailyHandler() bunrouter.HandlerFunc {
+	type dailyEntry struct {
+		ID        string
+		ItemNum   int
+		CreatedAt time.Time
+		Content   string
+	}
+
+	return func(w http.ResponseWriter, req bunrouter.Request) error {
+		var (
+			ctx          = context.Background()
+			dailyEntries []dailyEntry
+		)
+		err := app.DBClient.NewSelect().
+			Model(&db.Journal{}).
+			Column("id", "created_at", "content").
+			Order("created_at DESC").
+			Scan(ctx, &dailyEntries)
+
+		if err != nil {
+			if err != sql.ErrNoRows {
+				log.Fatal(err)
+			}
+		}
+
+		for index := range dailyEntries {
+			dailyEntries[index].ItemNum = len(dailyEntries) - index
+		}
+
+		app.writeJSON(
+			w,
+			http.StatusCreated,
+			Envelope{"daily_entries": dailyEntries},
+			nil,
+		)
 		return nil
 	}
 }
