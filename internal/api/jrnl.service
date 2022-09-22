@@ -1,0 +1,20 @@
+[Unit]
+Description=Server for jrnl Service
+ConditionPathExists=%h/code/jrnl-cli
+After=network.target
+
+[Service]
+Type=simple
+
+WorkingDirectory=%h/code/jrnl-cli
+ExecStart=%h/code/jrnl-cli/jrnl serve
+
+ExecStartPre=%h/.go/bin/go build . 
+
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=jrnlservice
+
+[Install]
+WantedBy=multi-user.target
+

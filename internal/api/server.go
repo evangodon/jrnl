@@ -61,7 +61,7 @@ func (app Application) Serve() error {
 		return err
 	}
 
-	// err = <-shutdownError
+	err = <-shutdownError
 	if err != nil {
 		return err
 	}

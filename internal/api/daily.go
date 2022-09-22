@@ -119,7 +119,7 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 			app.writeJSON(
 				w,
 				http.StatusBadRequest,
-				Envelope{"error": "daily  entry already exists for this date"},
+				Envelope{"error": "daily entry already exists for this date"},
 				nil,
 			)
 			return err
