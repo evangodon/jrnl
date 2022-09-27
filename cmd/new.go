@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/db"
@@ -44,7 +45,8 @@ var NewCmd = &cli.Command{
 		}
 
 		existingContent := func() string {
-			if payload.Daily.ID != "" {
+			if payload.Daily.ID != "" && strings.TrimSpace(payload.Daily.Content) != "" {
+				println(len(payload.Daily.Content))
 				return payload.Daily.Content
 			}
 			formattedDate := date.Format("Monday, January 2 2006")
