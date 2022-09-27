@@ -16,14 +16,16 @@ type Res struct {
 func MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) {
 	baseURL := cfg.GetConfig().API.BaseURL
 	url := baseURL + path
-	req, _ := http.NewRequest(method, url, bodyParams)
+	req, err := http.NewRequest(method, url, bodyParams)
+	if err != nil {
+		panic("Failed to setup http request")
+	}
 
 	r := Res{}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		r.Status = res.StatusCode
-		return r, err
+		panic("jrnl server not running")
 	}
 
 	body, err := ioutil.ReadAll(res.Body)

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/util"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -22,12 +23,8 @@ type DB struct {
 
 var db DB
 
-var isDev = os.Getenv("DEV") == "true"
-var enableLogs = os.Getenv("JRNL_ENABLE_LOGS") == "true"
-
 func GetDBPath() string {
-	if isDev {
-		fmt.Println("Using dev database")
+	if cfg.IsDev {
 		return "./tmp/devjrnl.db"
 	} else {
 		home := os.Getenv("HOME")
@@ -49,7 +46,7 @@ func Connect() DB {
 	util.CheckError(err)
 	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
 
-	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(enableLogs)))
+	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(cfg.EnableLogs)))
 
 	return db
 }

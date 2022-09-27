@@ -17,8 +17,19 @@ type Config struct {
 }
 
 var configFile = "jrnl/config.toml"
+var devConfigFile = "tmp/"
+
+var (
+	IsDev      = os.Getenv("DEV") == "true"
+	EnableLogs = os.Getenv("JRNL_ENABLE_LOGS") == "true"
+)
 
 func GetConfigPath() string {
+	if IsDev {
+		pwd, _ := os.Getwd()
+		return pwd + "/tmp/config.toml"
+	}
+
 	configFilePath, err := xdg.ConfigFile(configFile)
 	if err != nil {
 		log.Fatal(err)
