@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"path/filepath"
 
+	"github.com/adrg/xdg"
 	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/util"
 
@@ -27,8 +27,8 @@ func GetDBPath() string {
 	if cfg.IsDev {
 		return "./tmp/devjrnl.db"
 	} else {
-		home := os.Getenv("HOME")
-		path := filepath.Join(home, ".data/jrnl", "jrnl.db")
+		dbFile := "/jrnl/jrnl.db"
+		path := xdg.DataHome + dbFile
 
 		return path
 	}
