@@ -28,7 +28,10 @@ var ServeCmd = &cli.Command{
 			DBClient: db.Connect(),
 		}
 
-		app.Serve()
+		err := app.Serve()
+		if err != nil {
+			return err
+		}
 		return nil
 	},
 }
