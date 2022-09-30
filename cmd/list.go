@@ -19,11 +19,9 @@ import (
 var ListCmd = &cli.Command{
 	Name:    "list",
 	Aliases: []string{"l"},
-	Usage:   "List all journal entries",
+	Usage:   "List all journal dailies",
 	Action: func(c *cli.Context) error {
-
-		p := tea.NewProgram(initialListJournalsModel(c))
-		tea.EnterAltScreen()
+		p := tea.NewProgram(initialListJournalsModel(c), tea.WithAltScreen())
 
 		if err := p.Start(); err != nil {
 			fmt.Printf("Error occured: %v", err)

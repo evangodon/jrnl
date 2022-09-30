@@ -13,13 +13,11 @@ import (
 	"github.com/evangodon/jrnl/internal/db"
 )
 
-// ~~~~~ Config ~~~~~ //
 type Config struct {
 	Port int
 	Env  string
 }
 
-// ~~~~~ App ~~~~~ //
 type Application struct {
 	Cfg      Config
 	DBClient db.DB
