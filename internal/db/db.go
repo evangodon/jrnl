@@ -37,6 +37,8 @@ func GetDBPath() string {
 func Connect() DB {
 	dbPath := GetDBPath()
 
+	println("dbPath", dbPath)
+
 	if _, err := os.Stat(dbPath); err != nil {
 		CreateNewDB(dbPath)
 		fmt.Println("Created new database")

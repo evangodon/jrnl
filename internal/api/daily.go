@@ -18,12 +18,7 @@ import (
 // GET daily entry
 func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
-		var (
-			ctx                    = context.Background()
-			existingEntryID        = ""
-			existingEntryUpdatedAt = time.Now()
-			existingContent        = ""
-		)
+		var ctx = context.Background()
 		params := req.Params()
 		dateParam := params.ByName("date")
 
@@ -44,11 +39,12 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 			date = time.Now()
 		}
 
+		daily := new(db.Journal)
 		err := app.DBClient.NewSelect().
-			Model(&db.Journal{}).
+			Model(daily).
 			Column("id", "updated_at", "content").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date.Format("2006-01-02"))).
-			Scan(ctx, &existingEntryID, &existingEntryUpdatedAt, &existingContent)
+			Scan(ctx)
 
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -60,14 +56,7 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 			return err
 		}
 
-		dailyEntry := db.Journal{
-			ID:        existingEntryID,
-			CreatedAt: date,
-			UpdatedAt: existingEntryUpdatedAt,
-			Content:   existingContent,
-		}
-
-		app.writeJSON(w, http.StatusOK, Envelope{"daily": dailyEntry}, nil)
+		app.writeJSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
 		return nil
 	}
 }
@@ -75,6 +64,7 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 // POST daily entry
 func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
+		var ctx = context.Background()
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			app.writeJSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
@@ -89,35 +79,17 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 			return err
 		}
 
-		now := time.Now().Format("2006-01-02")
-		createdAt, err := util.CreateTimeDate(now)
+		exists, err := app.DBClient.NewSelect().
+			Model(&db.Journal{}).
+			Column("id").
+			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", time.Now().Format("2006-01-02"))).
+			Exists(ctx)
+
 		if err != nil {
 			return err
 		}
-		dailyEntry.CreatedAt = createdAt
-		dailyEntry.UpdatedAt = createdAt
-		dailyEntry.ID = db.CreateID()
 
-		var (
-			ctx = context.Background()
-		)
-
-		var existingEntryID string
-
-		err = app.DBClient.NewSelect().
-			Model(&db.Journal{}).
-			Column("id").
-			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", createdAt.Format("2006-01-02"))).
-			Scan(ctx, &existingEntryID)
-
-		if err != nil {
-			if err != sql.ErrNoRows {
-				log.Fatal(err)
-				return err
-			}
-		}
-
-		if existingEntryID != "" {
+		if exists {
 			app.writeJSON(
 				w,
 				http.StatusBadRequest,
@@ -126,6 +98,9 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 			)
 			return err
 		}
+
+		// Create a new one
+		dailyEntry.ID = db.CreateID()
 
 		_, err = app.DBClient.NewInsert().
 			Model(&dailyEntry).
@@ -186,32 +161,18 @@ func (app Application) updateDailyHandler() bunrouter.HandlerFunc {
 
 // GET list daily entries
 func (app *Application) listDailyHandler() bunrouter.HandlerFunc {
-	type dailyEntry struct {
-		ID        string
-		ItemNum   int
-		CreatedAt time.Time
-		Content   string
-	}
+	return func(w http.ResponseWriter, _ bunrouter.Request) error {
+		dailyEntries := new([]db.Journal)
 
-	return func(w http.ResponseWriter, req bunrouter.Request) error {
-		var (
-			ctx          = context.Background()
-			dailyEntries []dailyEntry
-		)
 		err := app.DBClient.NewSelect().
-			Model(&db.Journal{}).
-			Column("id", "created_at", "content").
+			Model(dailyEntries).
 			Order("created_at DESC").
-			Scan(ctx, &dailyEntries)
+			Scan(context.Background())
 
 		if err != nil {
 			if err != sql.ErrNoRows {
 				log.Fatal(err)
 			}
-		}
-
-		for index := range dailyEntries {
-			dailyEntries[index].ItemNum = len(dailyEntries) - index
 		}
 
 		app.writeJSON(
