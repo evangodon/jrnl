@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
+	"time"
 
 	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/db"
@@ -32,7 +32,9 @@ var NewCmd = &cli.Command{
 
 		payload := struct {
 			Daily db.Journal `json:"daily"`
-		}{}
+		}{
+			Daily: db.Journal{},
+		}
 
 		res, err := api.MakeRequest(http.MethodGet, "/daily", nil)
 		if err != nil {
@@ -44,15 +46,8 @@ var NewCmd = &cli.Command{
 			return err
 		}
 
-		existingContent := func() string {
-			if payload.Daily.ID != "" && strings.TrimSpace(payload.Daily.Content) != "" {
-				return payload.Daily.Content
-			}
-			formattedDate := date.Format("Monday, January 2 2006")
-			return "# " + formattedDate + "\n\n"
-		}()
-
-		newContent := util.GetNewEntry(existingContent)
+		existingContent := util.FormatContent(payload.Daily, time.Now())
+		newContent := util.OpenEditorWithContent(existingContent)
 
 		if newContent == existingContent {
 			fmt.Println("No changes made")

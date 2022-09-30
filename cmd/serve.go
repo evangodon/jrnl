@@ -13,9 +13,10 @@ var ServeCmd = &cli.Command{
 	Usage:   "Start the server",
 	Flags: []cli.Flag{
 		&cli.IntFlag{
-			Name:  "port",
-			Value: 8080,
-			Usage: "Port to use for server",
+			Name:    "port",
+			Aliases: []string{"p"},
+			Value:   8080,
+			Usage:   "Port to use for server",
 		},
 	},
 	Action: func(cCtx *cli.Context) error {

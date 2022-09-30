@@ -52,7 +52,7 @@ var EditCmd = &cli.Command{
 			return cli.Exit("No entry found", 1)
 		}
 
-		editedContent := util.GetNewEntry(item.Content)
+		editedContent := util.OpenEditorWithContent(item.Content)
 
 		if editedContent == item.Content {
 			fmt.Println("No changes made")

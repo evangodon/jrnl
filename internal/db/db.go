@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/adrg/xdg"
 	"github.com/evangodon/jrnl/internal/cfg"
-	"github.com/evangodon/jrnl/internal/util"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/uptrace/bun"
@@ -43,7 +43,9 @@ func Connect() DB {
 	}
 
 	sqlite, err := sql.Open(sqliteshim.ShimName, dbPath)
-	util.CheckError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
 
 	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(cfg.EnableLogs)))
@@ -55,7 +57,9 @@ const IDLength = 16
 
 func CreateID() string {
 	id, err := gonanoid.Generate("abcdefghijklmnopqrstuvwxyz0123456789", IDLength)
-	util.CheckError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return id
 }

@@ -14,9 +14,3 @@ type Journal struct {
 	UpdatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	Content   string    `bun:"content,notnull"`
 }
-
-var EntryType = struct {
-	Journal string
-}{
-	Journal: "journal",
-}

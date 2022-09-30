@@ -4,10 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/evangodon/jrnl/internal/util"
 
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
@@ -22,7 +21,9 @@ func CreateNewDB(dbfile string) {
 	os.MkdirAll(dir, 0755)
 
 	sqlite, err := sql.Open(sqliteshim.ShimName, dbfile)
-	util.CheckError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
 
 	db.NewCreateTable().Model(&Journal{}).Exec(ctx)

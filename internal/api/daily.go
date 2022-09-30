@@ -19,9 +19,10 @@ import (
 func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		var (
-			ctx             = context.Background()
-			existingEntryID = ""
-			existingContent = ""
+			ctx                    = context.Background()
+			existingEntryID        = ""
+			existingEntryUpdatedAt = time.Now()
+			existingContent        = ""
 		)
 		params := req.Params()
 		dateParam := params.ByName("date")
@@ -45,9 +46,9 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 
 		err := app.DBClient.NewSelect().
 			Model(&db.Journal{}).
-			Column("id", "content").
+			Column("id", "updated_at", "content").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date.Format("2006-01-02"))).
-			Scan(ctx, &existingEntryID, &existingContent)
+			Scan(ctx, &existingEntryID, &existingEntryUpdatedAt, &existingContent)
 
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -62,10 +63,11 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 		dailyEntry := db.Journal{
 			ID:        existingEntryID,
 			CreatedAt: date,
+			UpdatedAt: existingEntryUpdatedAt,
 			Content:   existingContent,
 		}
 
-		app.writeJSON(w, http.StatusNotFound, Envelope{"daily": dailyEntry}, nil)
+		app.writeJSON(w, http.StatusOK, Envelope{"daily": dailyEntry}, nil)
 		return nil
 	}
 }
