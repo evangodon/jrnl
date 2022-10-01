@@ -33,5 +33,5 @@ func FormatContent(daily db.Journal, now time.Time) string {
 		return daily.Content
 	}
 
-	return "# " + now.Format(dateFormat) + "\n\n" + now.Format(hourFormat)
+	return "# " + now.Format(dateFormat) + "\n\n--" + now.Format(hourFormat)
 }
