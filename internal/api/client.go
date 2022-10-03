@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,12 +15,14 @@ type Res struct {
 }
 
 func MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) {
-	baseURL := cfg.GetConfig().API.BaseURL
-	url := baseURL + path
+	apiConfig := cfg.GetConfig().API
+	url := apiConfig.BaseURL + path
 	req, err := http.NewRequest(method, url, bodyParams)
 	if err != nil {
 		panic("Failed to setup http request")
 	}
+
+	req.Header.Add("X-API-Key", apiConfig.Key)
 
 	r := Res{}
 
@@ -32,6 +35,12 @@ func MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) 
 	if err != nil {
 		r.Status = res.StatusCode
 		return r, err
+	}
+
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated &&
+		res.StatusCode != http.StatusNotFound {
+		fmt.Println(string(body))
+		panic("request error")
 	}
 	res.Body.Close()
 

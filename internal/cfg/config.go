@@ -10,6 +10,7 @@ import (
 
 type API struct {
 	BaseURL string `toml:"base-url"`
+	Key     string `toml:"key"`
 }
 
 type Config struct {
@@ -39,6 +40,7 @@ func GetConfigPath() string {
 }
 
 func GetConfig() Config {
+	// TODO: read config once
 	f, err := os.ReadFile(GetConfigPath())
 
 	if err != nil {
