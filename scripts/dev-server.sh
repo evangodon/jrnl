@@ -3,4 +3,4 @@
 echo "Starting dev server..."
 export DEV=true
 export JRNL_ENABLE_LOGS=true
-watchexec -r -e go -- go run . serve
+watchexec -r -e go -- go run . serve --port 8090
