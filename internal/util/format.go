@@ -19,12 +19,6 @@ func FormatContent(daily db.Journal, now time.Time) string {
 		if now.Format(dateFormat) == daily.UpdatedAt.Format(dateFormat) {
 			fiveMinutesAgo := now.Add(-5 * time.Minute)
 
-			println(
-				"five minutes ago",
-				daily.UpdatedAt.Format(hourFormat),
-				fiveMinutesAgo.Format(hourFormat),
-			)
-
 			if daily.UpdatedAt.Before(fiveMinutesAgo) {
 				return content + "\n-- " + now.Format(hourFormat)
 			}
