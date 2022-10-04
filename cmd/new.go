@@ -33,10 +33,14 @@ var NewCmd = &cli.Command{
 		payload := struct {
 			Daily db.Journal `json:"daily"`
 		}{
-			Daily: db.Journal{},
+			Daily: db.Journal{
+				CreatedAt: *date,
+			},
 		}
 
-		res, err := api.MakeRequest(http.MethodGet, "/daily", nil)
+		entryDate := date.Format("2006-01-02")
+
+		res, err := api.MakeRequest(http.MethodGet, "/daily/"+entryDate, nil)
 		if err != nil {
 			return err
 		}
