@@ -5,4 +5,7 @@ devserver:
 rebuild-server:
 	./scripts/rebuild-server.sh
 
+test:
+	go test -v ./...
+
 .PHONY: devserver rebuild-server
