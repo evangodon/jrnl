@@ -16,7 +16,7 @@ var ServeCmd = &cli.Command{
 		&cli.IntFlag{
 			Name:    "port",
 			Aliases: []string{"p"},
-			Value:   8080,
+			Value:   8090,
 			Usage:   "Port to use for server",
 		},
 	},
@@ -29,6 +29,7 @@ var ServeCmd = &cli.Command{
 			Cfg:      serverCfg,
 			DBClient: db.Connect(),
 			AppCfg:   cfg.GetConfig(),
+			Env:      cfg.GetEnv(),
 		}
 
 		err := app.Serve()
