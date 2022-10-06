@@ -8,7 +8,7 @@ import (
 
 type Envelope map[string]interface{}
 
-func (app *Application) writeJSON(
+func (server *Server) JSON(
 	w http.ResponseWriter,
 	status int,
 	data Envelope,
@@ -33,10 +33,10 @@ func (app *Application) writeJSON(
 	return nil
 }
 
-func (app *Application) UnexpectedError(w http.ResponseWriter, err error) {
+func (app *Server) UnexpectedError(w http.ResponseWriter, err error) {
 	log.Fatal(err)
 
-	app.writeJSON(
+	app.JSON(
 		w,
 		http.StatusInternalServerError,
 		Envelope{"msg": "Unexpected error"},

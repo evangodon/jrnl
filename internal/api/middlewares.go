@@ -11,8 +11,8 @@ import (
 var apiKeyheader = "X-API-Key"
 
 // Check if request has the api key in header
-func (app *Application) checkAPIKey(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
-	apiKeyInConfig := app.AppCfg.API.Key
+func (server *Server) checkAPIKey(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
+	apiKeyInConfig := server.AppCfg.API.Key
 	if apiKeyInConfig == "" {
 		panic(fmt.Sprintf("API Key not found in config at path: %s", cfg.GetConfigPath()))
 	}
@@ -21,7 +21,7 @@ func (app *Application) checkAPIKey(next bunrouter.HandlerFunc) bunrouter.Handle
 		apiKey := req.Header.Get(apiKeyheader)
 
 		if apiKey != apiKeyInConfig {
-			app.writeJSON(
+			server.JSON(
 				w,
 				http.StatusUnauthorized,
 				Envelope{"msg": "Unauthorized"},

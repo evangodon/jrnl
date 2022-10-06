@@ -16,7 +16,7 @@ import (
 )
 
 // GET daily entry
-func (app Application) getDailyHandler() bunrouter.HandlerFunc {
+func (server Server) getDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		var ctx = context.Background()
 		params := req.Params()
@@ -26,7 +26,7 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 		if dateParam != "" {
 			t, err := util.CreateTimeDate(dateParam)
 			if err != nil {
-				app.writeJSON(
+				server.JSON(
 					w,
 					http.StatusBadRequest,
 					Envelope{"error": err.Error()},
@@ -40,7 +40,7 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 		}
 
 		daily := new(db.Journal)
-		err := app.DBClient.NewSelect().
+		err := server.DBClient.NewSelect().
 			Model(daily).
 			Column("id", "updated_at", "content").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date.Format("2006-01-02"))).
@@ -48,26 +48,26 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 
 		if err != nil {
 			if err == sql.ErrNoRows {
-				app.writeJSON(w, http.StatusNotFound, Envelope{"msg": "not found"}, nil)
+				server.JSON(w, http.StatusNotFound, Envelope{"msg": "not found"}, nil)
 				return nil
 			}
 
-			app.UnexpectedError(w, err)
+			server.UnexpectedError(w, err)
 			return err
 		}
 
-		app.writeJSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
+		server.JSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
 		return nil
 	}
 }
 
 // POST daily entry
-func (app Application) newDailyHandler() bunrouter.HandlerFunc {
+func (server Server) newDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		var ctx = context.Background()
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			app.writeJSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
+			server.JSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
 			return err
 		}
 
@@ -75,11 +75,11 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 
 		err = json.Unmarshal(body, &dailyEntry)
 		if err != nil {
-			app.writeJSON(w, http.StatusBadRequest, Envelope{"msg": "error parsing body"}, nil)
+			server.JSON(w, http.StatusBadRequest, Envelope{"msg": "error parsing body"}, nil)
 			return err
 		}
 
-		exists, err := app.DBClient.NewSelect().
+		exists, err := server.DBClient.NewSelect().
 			Model(&db.Journal{}).
 			Column("id").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", time.Now().Format("2006-01-02"))).
@@ -90,7 +90,7 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 		}
 
 		if exists {
-			app.writeJSON(
+			server.JSON(
 				w,
 				http.StatusBadRequest,
 				Envelope{"error": "daily entry already exists for this date"},
@@ -102,15 +102,15 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 		// Create a new one
 		dailyEntry.ID = db.CreateID()
 
-		_, err = app.DBClient.NewInsert().
+		_, err = server.DBClient.NewInsert().
 			Model(&dailyEntry).
 			Exec(ctx)
 
 		if err != nil {
-			app.UnexpectedError(w, err)
+			server.UnexpectedError(w, err)
 			return err
 		}
-		app.writeJSON(
+		server.JSON(
 			w,
 			http.StatusCreated,
 			Envelope{"msg": "daily created"},
@@ -121,24 +121,24 @@ func (app Application) newDailyHandler() bunrouter.HandlerFunc {
 }
 
 // PATCH daily
-func (app Application) updateDailyHandler() bunrouter.HandlerFunc {
+func (server Server) updateDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			app.writeJSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
+			server.JSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
 			return err
 		}
 
 		var dailyEntry db.Journal
 		err = json.Unmarshal(body, &dailyEntry)
 		if err != nil {
-			app.UnexpectedError(w, err)
+			server.UnexpectedError(w, err)
 			return err
 		}
 
 		var ctx = context.Background()
 
-		_, err = app.DBClient.NewInsert().
+		_, err = server.DBClient.NewInsert().
 			Model(&dailyEntry).
 			On("CONFLICT (id) DO UPDATE").
 			Set("updated_at = EXCLUDED.updated_at").
@@ -146,10 +146,10 @@ func (app Application) updateDailyHandler() bunrouter.HandlerFunc {
 			Exec(ctx)
 
 		if err != nil {
-			app.UnexpectedError(w, err)
+			server.UnexpectedError(w, err)
 			return err
 		}
-		app.writeJSON(
+		server.JSON(
 			w,
 			http.StatusCreated,
 			Envelope{"msg": "daily updated"},
@@ -160,7 +160,7 @@ func (app Application) updateDailyHandler() bunrouter.HandlerFunc {
 }
 
 // GET list daily entries
-func (app *Application) listDailyHandler() bunrouter.HandlerFunc {
+func (app *Server) listDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, _ bunrouter.Request) error {
 		dailyEntries := new([]db.Journal)
 
@@ -175,7 +175,7 @@ func (app *Application) listDailyHandler() bunrouter.HandlerFunc {
 			}
 		}
 
-		app.writeJSON(
+		app.JSON(
 			w,
 			http.StatusCreated,
 			Envelope{"daily_entries": dailyEntries},

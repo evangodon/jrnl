@@ -16,19 +16,19 @@ import (
 
 type ServerConfig struct {
 	Port int
+	Env  string
 }
 
-type Application struct {
+type Server struct {
 	Cfg      ServerConfig
 	DBClient db.DB
-	Env      string
 	AppCfg   cfg.Config
 }
 
-func (app Application) Serve() error {
+func (server Server) Serve() error {
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.Cfg.Port),
-		Handler:      app.routes(),
+		Addr:         fmt.Sprintf(":%d", server.Cfg.Port),
+		Handler:      server.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  8 * time.Second,
 		WriteTimeout: 5 * time.Second,

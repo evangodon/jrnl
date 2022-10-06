@@ -23,13 +23,13 @@ var ServeCmd = &cli.Command{
 	Action: func(cCtx *cli.Context) error {
 		serverCfg := api.ServerConfig{
 			Port: cCtx.Int("port"),
+			Env:  cfg.GetEnv(),
 		}
 
-		app := &api.Application{
+		app := &api.Server{
 			Cfg:      serverCfg,
 			DBClient: db.Connect(),
 			AppCfg:   cfg.GetConfig(),
-			Env:      cfg.GetEnv(),
 		}
 
 		err := app.Serve()

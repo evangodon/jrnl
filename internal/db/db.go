@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -39,7 +40,7 @@ func GetDBPath() string {
 func Connect() DB {
 	dbPath := GetDBPath()
 
-	if _, err := os.Stat(dbPath); err != nil {
+	if _, err := os.Stat(dbPath); errors.Is(err, os.ErrNotExist) {
 		CreateNewDB(dbPath)
 		fmt.Println("Created new database")
 	}

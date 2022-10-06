@@ -21,7 +21,9 @@ func TestServer(t *testing.T) {
 		os.Remove(dbPath)
 	})
 
-	serverCfg := ServerConfig{}
+	serverCfg := ServerConfig{
+		Env: "TEST",
+	}
 
 	appCfg := cfg.Config{
 		API: cfg.API{
@@ -29,10 +31,9 @@ func TestServer(t *testing.T) {
 		},
 	}
 
-	app := Application{
+	app := Server{
 		Cfg:      serverCfg,
 		DBClient: db.Connect(),
-		Env:      "TEST",
 		AppCfg:   appCfg,
 	}
 
@@ -53,24 +54,24 @@ func TestServer(t *testing.T) {
 		}
 
 		res, err := client.MakeRequest(http.MethodPost, "/daily/new", bytes.NewBuffer(newEntry))
-		require.Nil(t, err)
+		require.NoError(t, err)
 
 		require.Equal(t, res.Status, http.StatusCreated)
 	})
 
 	t.Run("should be able to request the new entry", func(t *testing.T) {
 		res, err := client.MakeRequest(http.MethodGet, "/daily/", nil)
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.Equal(t, res.Status, http.StatusOK)
 
-		payload := struct {
+		gotEntry := struct {
 			Daily db.Journal `json:"daily"`
 		}{
 			Daily: db.Journal{},
 		}
-		err = json.Unmarshal(res.Body, &payload)
-		require.Nil(t, err)
+		err = json.Unmarshal(res.Body, &gotEntry)
+		require.NoError(t, err)
 
-		require.Equal(t, testEntry.Content, payload.Daily.Content)
+		require.Equal(t, testEntry.Content, gotEntry.Daily.Content)
 	})
 }

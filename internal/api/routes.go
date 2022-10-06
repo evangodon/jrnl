@@ -7,20 +7,20 @@ import (
 	"github.com/uptrace/bunrouter/extra/reqlog"
 )
 
-func (app Application) routes() http.Handler {
+func (server Server) routes() http.Handler {
 	router := bunrouter.New(
 		bunrouter.Use(reqlog.NewMiddleware()),
 	)
 
-	router.GET("/dbpath", app.dbPath)
-	router.GET("/healthcheck", app.healthcheck)
+	router.GET("/dbpath", server.dbPath)
+	router.GET("/healthcheck", server.healthcheck)
 
-	router.Use(app.checkAPIKey).WithGroup("/daily", func(group *bunrouter.Group) {
-		group.GET("/", app.getDailyHandler())
-		group.GET("/:date", app.getDailyHandler())
-		group.PATCH("/:id", app.updateDailyHandler())
-		group.GET("/list", app.listDailyHandler())
-		group.POST("/new", app.newDailyHandler())
+	router.Use(server.checkAPIKey).WithGroup("/daily", func(group *bunrouter.Group) {
+		group.GET("/", server.getDailyHandler())
+		group.GET("/:date", server.getDailyHandler())
+		group.PATCH("/:id", server.updateDailyHandler())
+		group.GET("/list", server.listDailyHandler())
+		group.POST("/new", server.newDailyHandler())
 	})
 
 	return router

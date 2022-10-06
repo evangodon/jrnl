@@ -11,7 +11,7 @@ import (
 	"github.com/evangodon/jrnl/internal/db"
 )
 
-func (app *Application) healthcheck(w http.ResponseWriter, _ bunrouter.Request) error {
+func (app *Server) healthcheck(w http.ResponseWriter, _ bunrouter.Request) error {
 
 	checks := map[string]string{
 		"database": "",
@@ -32,16 +32,16 @@ func (app *Application) healthcheck(w http.ResponseWriter, _ bunrouter.Request) 
 		checks["config"] = "Exists at " + configPath
 	}
 
-	app.writeJSON(
+	app.JSON(
 		w,
 		http.StatusOK,
-		Envelope{"checks": checks, "app_env": app.Env},
+		Envelope{"checks": checks, "app_env": app.Cfg.Env},
 		nil,
 	)
 	return nil
 }
 
-func (app *Application) dbPath(w http.ResponseWriter, _ bunrouter.Request) error {
+func (app *Server) dbPath(w http.ResponseWriter, _ bunrouter.Request) error {
 	dbPath := db.GetDBPath()
 	if _, err := os.Stat(dbPath); errors.Is(err, os.ErrNotExist) {
 		w.Header().Set("Content-Type", "application/text")
