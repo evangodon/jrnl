@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/evangodon/jrnl/internal/cfg"
@@ -11,9 +12,9 @@ var apiKeyheader = "X-API-Key"
 
 // Check if request has the api key in header
 func (app *Application) checkAPIKey(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
-	apiKeyInConfig := cfg.GetConfig().API.Key
+	apiKeyInConfig := app.AppCfg.API.Key
 	if apiKeyInConfig == "" {
-		panic("API Key not found in config")
+		panic(fmt.Sprintf("API Key not found in config at path: %s", cfg.GetConfigPath()))
 	}
 
 	return func(w http.ResponseWriter, req bunrouter.Request) error {

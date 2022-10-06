@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,8 +13,12 @@ type Res struct {
 	Body   []byte
 }
 
-func MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) {
-	apiConfig := cfg.GetConfig().API
+type Client struct {
+	Config cfg.Config
+}
+
+func (c *Client) MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) {
+	apiConfig := c.Config.API
 	url := apiConfig.BaseURL + path
 	req, err := http.NewRequest(method, url, bodyParams)
 	if err != nil {
@@ -39,11 +42,11 @@ func MakeRequest(method string, path string, bodyParams io.Reader) (Res, error) 
 
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated &&
 		res.StatusCode != http.StatusNotFound {
-		fmt.Println(string(body))
-		panic("request error")
+		panic("request error: " + string(body))
 	}
 	res.Body.Close()
 
+	r.Status = res.StatusCode
 	r.Body = body
 
 	return r, nil

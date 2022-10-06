@@ -3,6 +3,8 @@ package cfg
 import (
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/BurntSushi/toml"
 	"github.com/adrg/xdg"
@@ -18,17 +20,34 @@ type Config struct {
 }
 
 var configFile = "jrnl/config.toml"
-var devConfigFile = "tmp/"
+var devConfigFile = "tmp/config.toml"
 
 var (
 	IsDev      = os.Getenv("DEV") == "true"
 	EnableLogs = os.Getenv("JRNL_ENABLE_LOGS") == "true"
+	_, b, _, _ = runtime.Caller(0)
+	basepath   = filepath.Dir(b)
 )
 
+func GetEnv() string {
+	if os.Getenv("DEV") == "true" {
+		return "DEV"
+	}
+	if os.Getenv("TEST") == "true" {
+		return "TEST"
+	}
+
+	return "PROD"
+}
+
+func GetProjectRoot() string {
+	return filepath.Join(basepath, "../..")
+}
+
 func GetConfigPath() string {
-	if IsDev {
-		pwd, _ := os.Getwd()
-		return pwd + "/tmp/config.toml"
+	env := GetEnv()
+	if env == "DEV" || env == "TEST" {
+		return filepath.Join(GetProjectRoot(), "/tmp/config.toml")
 	}
 
 	configFilePath, err := xdg.ConfigFile(configFile)
@@ -39,12 +58,19 @@ func GetConfigPath() string {
 	return configFilePath
 }
 
-func GetConfig() Config {
-	// TODO: read config once
-	f, err := os.ReadFile(GetConfigPath())
+var configData []byte
 
-	if err != nil {
-		log.Fatal(err)
+func GetConfig() Config {
+	var f []byte
+	var err error
+
+	if configData != nil {
+		f = configData
+	} else {
+		f, err = os.ReadFile(GetConfigPath())
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	var config Config

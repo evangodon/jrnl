@@ -4,6 +4,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/evangodon/jrnl/internal/api"
+	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/db"
 )
 
@@ -20,13 +21,14 @@ var ServeCmd = &cli.Command{
 		},
 	},
 	Action: func(cCtx *cli.Context) error {
-		cfg := api.Config{
+		serverCfg := api.ServerConfig{
 			Port: cCtx.Int("port"),
 		}
 
 		app := &api.Application{
-			Cfg:      cfg,
+			Cfg:      serverCfg,
 			DBClient: db.Connect(),
+			AppCfg:   cfg.GetConfig(),
 		}
 
 		err := app.Serve()

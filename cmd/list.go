@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/evangodon/jrnl/internal/api"
+	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/db"
 	"github.com/evangodon/jrnl/internal/ui"
 	"github.com/evangodon/jrnl/internal/util"
@@ -70,14 +71,18 @@ func initialListJournalsModel(c *cli.Context) listJournalsModel {
 }
 
 func getJournalEntries(c *cli.Context) tea.Msg {
-	payload := struct {
-		DailyEntries []db.Journal `json:"daily_entries"`
-	}{}
+	client := api.Client{
+		Config: cfg.GetConfig(),
+	}
 
-	res, err := api.MakeRequest(http.MethodGet, "/daily/list", nil)
+	res, err := client.MakeRequest(http.MethodGet, "/daily/list", nil)
 	if err != nil {
 		return err
 	}
+
+	payload := struct {
+		DailyEntries []db.Journal `json:"daily_entries"`
+	}{}
 
 	err = json.Unmarshal(res.Body, &payload)
 	if err != nil {

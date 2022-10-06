@@ -22,8 +22,6 @@ func (app Application) getDailyHandler() bunrouter.HandlerFunc {
 		params := req.Params()
 		dateParam := params.ByName("date")
 
-		println("dateParam", dateParam)
-
 		var date time.Time
 		if dateParam != "" {
 			t, err := util.CreateTimeDate(dateParam)

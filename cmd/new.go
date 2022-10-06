@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/evangodon/jrnl/internal/api"
+	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/db"
 	"github.com/evangodon/jrnl/internal/util"
 
@@ -29,6 +30,17 @@ var NewCmd = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		date := c.Timestamp("date")
+		config := cfg.GetConfig()
+
+		client := api.Client{
+			Config: config,
+		}
+		entryDate := date.Format("2006-01-02")
+
+		res, err := client.MakeRequest(http.MethodGet, "/daily/"+entryDate, nil)
+		if err != nil {
+			return err
+		}
 
 		payload := struct {
 			Daily db.Journal `json:"daily"`
@@ -36,13 +48,6 @@ var NewCmd = &cli.Command{
 			Daily: db.Journal{
 				CreatedAt: *date,
 			},
-		}
-
-		entryDate := date.Format("2006-01-02")
-
-		res, err := api.MakeRequest(http.MethodGet, "/daily/"+entryDate, nil)
-		if err != nil {
-			return err
 		}
 
 		err = json.Unmarshal(res.Body, &payload)
@@ -68,7 +73,7 @@ var NewCmd = &cli.Command{
 			if err != nil {
 				return err
 			}
-			_, err = api.MakeRequest(
+			_, err = client.MakeRequest(
 				http.MethodPatch,
 				"/daily/"+payload.Daily.ID,
 				bytes.NewBuffer(updatedEntry),
@@ -88,7 +93,7 @@ var NewCmd = &cli.Command{
 			return err
 		}
 
-		_, err = api.MakeRequest(http.MethodPost, "/daily/new", bytes.NewBuffer(newEntry))
+		_, err = client.MakeRequest(http.MethodPost, "/daily/new", bytes.NewBuffer(newEntry))
 		if err != nil {
 			return err
 		}

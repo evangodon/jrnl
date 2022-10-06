@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,14 +12,13 @@ import (
 	"github.com/uptrace/bun/driver/sqliteshim"
 )
 
-func CreateNewDB(dbfile string) {
-	fmt.Println(dbfile)
+func CreateNewDB(dbPath string) {
 	ctx := context.Background()
-	dir := filepath.Dir(dbfile)
+	dir := filepath.Dir(dbPath)
 
 	os.MkdirAll(dir, 0755)
 
-	sqlite, err := sql.Open(sqliteshim.ShimName, dbfile)
+	sqlite, err := sql.Open(sqliteshim.ShimName, dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}

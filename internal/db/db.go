@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/adrg/xdg"
 	"github.com/evangodon/jrnl/internal/cfg"
@@ -24,8 +25,9 @@ type DB struct {
 var db DB
 
 func GetDBPath() string {
-	if cfg.IsDev {
-		return "./tmp/devjrnl.db"
+	env := cfg.GetEnv()
+	if env == "DEV" || env == "TEST" {
+		return filepath.Join(cfg.GetProjectRoot(), "/tmp/devjrnl.db")
 	} else {
 		dbFile := "/jrnl/jrnl.db"
 		path := xdg.DataHome + dbFile
@@ -36,8 +38,6 @@ func GetDBPath() string {
 
 func Connect() DB {
 	dbPath := GetDBPath()
-
-	println("dbPath", dbPath)
 
 	if _, err := os.Stat(dbPath); err != nil {
 		CreateNewDB(dbPath)

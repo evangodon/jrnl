@@ -10,17 +10,19 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/db"
 )
 
-type Config struct {
+type ServerConfig struct {
 	Port int
-	Env  string
 }
 
 type Application struct {
-	Cfg      Config
+	Cfg      ServerConfig
 	DBClient db.DB
+	Env      string
+	AppCfg   cfg.Config
 }
 
 func (app Application) Serve() error {

@@ -1,4 +1,7 @@
 
+devbuild:
+	./scripts/dev-build.sh
+
 devserver:
 	./scripts/dev-server.sh
 
@@ -6,6 +9,6 @@ rebuild-server:
 	./scripts/rebuild-server.sh
 
 test:
-	go test -v ./...
+	gotest -v ./...
 
-.PHONY: devserver rebuild-server
+.PHONY: devserver rebuild-server test devbuild
