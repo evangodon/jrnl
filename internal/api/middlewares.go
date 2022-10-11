@@ -12,9 +12,11 @@ var apiKeyheader = "X-API-Key"
 
 // Check if request has the api key in header
 func (server *Server) checkAPIKey(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
-	apiKeyInConfig := server.AppCfg.API.Key
+	apiKeyInConfig := server.appCfg.API.Key
 	if apiKeyInConfig == "" {
-		panic(fmt.Sprintf("API Key not found in config at path: %s", cfg.GetConfigPath()))
+		server.logger.PrintFatal(
+			fmt.Sprintf("API Key not found in config at path: %s", cfg.GetConfigPath()),
+		)
 	}
 
 	return func(w http.ResponseWriter, req bunrouter.Request) error {

@@ -35,7 +35,7 @@ func (app *Server) healthcheck(w http.ResponseWriter, _ bunrouter.Request) error
 	app.JSON(
 		w,
 		http.StatusOK,
-		Envelope{"checks": checks, "app_env": app.Cfg.Env},
+		Envelope{"checks": checks, "app_env": app.cfg.Env},
 		nil,
 	)
 	return nil

@@ -70,7 +70,7 @@ func initialListJournalsModel(c *cli.Context) listJournalsModel {
 	}
 }
 
-func getJournalEntries(c *cli.Context) tea.Msg {
+func getJournalEntries(_ *cli.Context) tea.Msg {
 	client := api.Client{
 		Config: cfg.GetConfig(),
 	}

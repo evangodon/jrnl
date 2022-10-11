@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/evangodon/jrnl/internal/logger"
+
 	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/db"
 )
@@ -20,14 +22,25 @@ type ServerConfig struct {
 }
 
 type Server struct {
-	Cfg      ServerConfig
-	DBClient db.DB
-	AppCfg   cfg.Config
+	cfg      ServerConfig
+	dbClient db.DB
+	appCfg   cfg.Config
+	logger   *logger.Logger
+}
+
+func NewServer(srvConfig ServerConfig, dbClient db.DB) *Server {
+	return &Server{
+		cfg:      srvConfig,
+		dbClient: dbClient,
+		appCfg:   cfg.GetConfig(),
+		logger:   logger.NewLogger(os.Stdout),
+	}
 }
 
 func (server Server) Serve() error {
+	addr := fmt.Sprintf(":%d", server.cfg.Port)
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", server.Cfg.Port),
+		Addr:         addr,
 		Handler:      server.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  8 * time.Second,
@@ -41,10 +54,11 @@ func (server Server) Serve() error {
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		s := <-quit
 
-		fmt.Printf(
+		log := fmt.Sprintf(
 			"Shutting down due to signal: %s\n",
 			map[string]string{"signal": s.String()},
 		)
+		server.logger.PrintInfo(log)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -52,9 +66,8 @@ func (server Server) Serve() error {
 		shutdownError <- srv.Shutdown(ctx)
 	}()
 
-	fmt.Println("Starting server", map[string]string{
-		"addr": srv.Addr,
-	})
+	log := fmt.Sprintf("🚀 Starting server at %s", srv.Addr)
+	server.logger.PrintInfo(log)
 
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {

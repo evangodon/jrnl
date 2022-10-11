@@ -42,7 +42,6 @@ func OpenNoteWithEditor(notePath string) {
 	e.Stderr = os.Stderr
 
 	err := e.Run()
-
 	if err != nil {
 		log.Fatal(err)
 	}

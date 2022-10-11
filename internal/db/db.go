@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/adrg/xdg"
 	"github.com/evangodon/jrnl/internal/cfg"
+	"github.com/evangodon/jrnl/internal/logger"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/uptrace/bun"
@@ -39,15 +39,20 @@ func GetDBPath() string {
 
 func Connect() DB {
 	dbPath := GetDBPath()
+	logger := logger.NewLogger(os.Stdout)
 
 	if _, err := os.Stat(dbPath); errors.Is(err, os.ErrNotExist) {
-		CreateNewDB(dbPath)
-		fmt.Println("Created new database")
+		logger.PrintInfo("No database found")
+		if err = CreateNewDB(dbPath); err != nil {
+			logger.PrintFatal(err.Error())
+		}
+
+		logger.PrintSuccess("Created new database at " + dbPath)
 	}
 
 	sqlite, err := sql.Open(sqliteshim.ShimName, dbPath)
 	if err != nil {
-		log.Fatal(err)
+		logger.PrintFatal(err.Error())
 	}
 	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
 
@@ -128,5 +133,24 @@ func (DB) UpdateEntryContent(ctx context.Context, model interface{}, item Item) 
 		return err
 	}
 
+	return nil
+}
+
+func CreateNewDB(dbPath string) error {
+	ctx := context.Background()
+	dir := filepath.Dir(dbPath)
+
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return err
+	}
+
+	sqlite, err := sql.Open(sqliteshim.ShimName, dbPath)
+	if err != nil {
+		return err
+	}
+	db.DB = bun.NewDB(sqlite, sqlitedialect.New())
+
+	db.NewCreateTable().Model(&Journal{}).Exec(ctx)
 	return nil
 }

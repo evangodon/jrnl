@@ -32,9 +32,9 @@ func TestServer(t *testing.T) {
 	}
 
 	app := Server{
-		Cfg:      serverCfg,
-		DBClient: db.Connect(),
-		AppCfg:   appCfg,
+		cfg:      serverCfg,
+		dbClient: db.Connect(),
+		appCfg:   appCfg,
 	}
 
 	testsrv := httptest.NewServer(app.routes())

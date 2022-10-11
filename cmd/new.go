@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/db"
+	"github.com/evangodon/jrnl/internal/logger"
 	"github.com/evangodon/jrnl/internal/util"
 
 	"github.com/urfave/cli/v2"
@@ -31,6 +33,7 @@ var NewCmd = &cli.Command{
 	Action: func(c *cli.Context) error {
 		date := c.Timestamp("date")
 		config := cfg.GetConfig()
+		logger := logger.NewLogger(os.Stdout)
 
 		client := api.Client{
 			Config: config,
@@ -59,7 +62,7 @@ var NewCmd = &cli.Command{
 		newContent := util.OpenEditorWithContent(existingContent)
 
 		if newContent == existingContent {
-			fmt.Println("No changes made")
+			logger.PrintInfo("No changes made")
 			return nil
 		}
 
@@ -81,7 +84,7 @@ var NewCmd = &cli.Command{
 			if err != nil {
 				return err
 			}
-			fmt.Println("Entry updated")
+			logger.PrintSuccess("Entry updated")
 			return nil
 		}
 
@@ -98,7 +101,8 @@ var NewCmd = &cli.Command{
 			return err
 		}
 
-		fmt.Printf("New entry created for %s", date.Format("Monday, January 2 2006"))
+		msg := fmt.Sprintf("New entry created for %s", date.Format("Monday, January 2 2006"))
+		logger.PrintSuccess(msg)
 		return nil
 	},
 }

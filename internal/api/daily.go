@@ -40,7 +40,7 @@ func (server Server) getDailyHandler() bunrouter.HandlerFunc {
 		}
 
 		daily := new(db.Journal)
-		err := server.DBClient.NewSelect().
+		err := server.dbClient.NewSelect().
 			Model(daily).
 			Column("id", "updated_at", "content").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date.Format("2006-01-02"))).
@@ -79,7 +79,7 @@ func (server Server) newDailyHandler() bunrouter.HandlerFunc {
 			return err
 		}
 
-		exists, err := server.DBClient.NewSelect().
+		exists, err := server.dbClient.NewSelect().
 			Model(&db.Journal{}).
 			Column("id").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", time.Now().Format("2006-01-02"))).
@@ -102,7 +102,7 @@ func (server Server) newDailyHandler() bunrouter.HandlerFunc {
 		// Create a new one
 		dailyEntry.ID = db.CreateID()
 
-		_, err = server.DBClient.NewInsert().
+		_, err = server.dbClient.NewInsert().
 			Model(&dailyEntry).
 			Exec(ctx)
 
@@ -138,7 +138,7 @@ func (server Server) updateDailyHandler() bunrouter.HandlerFunc {
 
 		var ctx = context.Background()
 
-		_, err = server.DBClient.NewInsert().
+		_, err = server.dbClient.NewInsert().
 			Model(&dailyEntry).
 			On("CONFLICT (id) DO UPDATE").
 			Set("updated_at = EXCLUDED.updated_at").
@@ -164,7 +164,7 @@ func (app *Server) listDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, _ bunrouter.Request) error {
 		dailyEntries := new([]db.Journal)
 
-		err := app.DBClient.NewSelect().
+		err := app.dbClient.NewSelect().
 			Model(dailyEntries).
 			Order("created_at DESC").
 			Scan(context.Background())

@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"context"
-	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/evangodon/jrnl/internal/db"
+	"github.com/evangodon/jrnl/internal/logger"
 	"github.com/evangodon/jrnl/internal/util"
 
 	"github.com/urfave/cli/v2"
@@ -27,6 +28,7 @@ var EditCmd = &cli.Command{
 			identifier = c.Args().Get(0)
 			item       = db.Journal{}
 			ctx        = context.Background()
+			log        = logger.NewLogger(os.Stdout)
 		)
 
 		// Using row number as identifier
@@ -49,13 +51,13 @@ var EditCmd = &cli.Command{
 		}
 
 		if item.ID == "" {
-			return cli.Exit("No entry found", 1)
+			log.PrintFatal("No entry found")
 		}
 
 		editedContent := util.OpenEditorWithContent(item.Content)
 
 		if editedContent == item.Content {
-			fmt.Println("No changes made")
+			log.PrintInfo("No changes made")
 			return nil
 		}
 

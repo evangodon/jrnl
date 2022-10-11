@@ -26,13 +26,10 @@ var ServeCmd = &cli.Command{
 			Env:  cfg.GetEnv(),
 		}
 
-		app := &api.Server{
-			Cfg:      serverCfg,
-			DBClient: db.Connect(),
-			AppCfg:   cfg.GetConfig(),
-		}
+		dbClient := db.Connect()
+		srv := api.NewServer(serverCfg, dbClient)
 
-		err := app.Serve()
+		err := srv.Serve()
 		if err != nil {
 			return err
 		}
