@@ -8,7 +8,7 @@ import (
 )
 
 var dateFormat = "January 2 2006"
-var hourFormat = "3:04 AM"
+var hourFormat = time.Kitchen
 
 // Checks if daily has existing content, and if not, will format a new one.
 func FormatContent(daily db.Journal, now time.Time) string {
