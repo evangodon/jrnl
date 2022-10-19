@@ -7,7 +7,7 @@ import (
 	"github.com/evangodon/jrnl/internal/db"
 )
 
-var dateFormat = "January 2 2006"
+var dateFormat = "January 2, 2006"
 var hourFormat = "3:04 PM"
 
 // Checks if daily has existing content, and if not, will format a new one.

@@ -1,14 +1,14 @@
 #! /bin/sh
 
 git pull origin main
-go build -o ./build/jrnl . 
 echo "Building jrnl binary..."
+go build -o ./build/jrnl . 
 
 cd app
-yarn install
 echo "Install web depencencies..."
-yarn build
+yarn install
 echo "Building web bundle..."
+yarn build
 
 
 pm2 restart build/jrnl -- serve --port 30305
