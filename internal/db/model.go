@@ -10,10 +10,10 @@ import (
 type Journal struct {
 	bun.BaseModel `bun:"table:journal"`
 
-	ID        string    `bun:"id,pk"`
-	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
-	UpdatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp"`
-	Content   string    `bun:"content,notnull"`
+	ID        string    `bun:"id,pk"                                       json:"id"`
+	CreatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"createdAt"`
+	UpdatedAt time.Time `bun:",nullzero,notnull,default:current_timestamp" json:"updatedAt"`
+	Content   string    `bun:"content,notnull"                             json:"content"`
 }
 
 var _ bun.BeforeAppendModelHook = (*Journal)(nil)

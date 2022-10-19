@@ -16,7 +16,7 @@ import (
 )
 
 // GET daily entry
-func (server Server) getDailyHandler() bunrouter.HandlerFunc {
+func (srv Server) getDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		var ctx = context.Background()
 		params := req.Params()
@@ -26,7 +26,7 @@ func (server Server) getDailyHandler() bunrouter.HandlerFunc {
 		if dateParam != "" {
 			t, err := util.CreateTimeDate(dateParam)
 			if err != nil {
-				server.JSON(
+				srv.JSON(
 					w,
 					http.StatusBadRequest,
 					Envelope{"error": err.Error()},
@@ -40,7 +40,7 @@ func (server Server) getDailyHandler() bunrouter.HandlerFunc {
 		}
 
 		daily := new(db.Journal)
-		err := server.dbClient.NewSelect().
+		err := srv.dbClient.NewSelect().
 			Model(daily).
 			Column("id", "updated_at", "content").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date.Format("2006-01-02"))).
@@ -48,26 +48,26 @@ func (server Server) getDailyHandler() bunrouter.HandlerFunc {
 
 		if err != nil {
 			if err == sql.ErrNoRows {
-				server.JSON(w, http.StatusNotFound, Envelope{"msg": "not found"}, nil)
+				srv.JSON(w, http.StatusNotFound, Envelope{"msg": "not found"}, nil)
 				return nil
 			}
 
-			server.UnexpectedError(w, err)
+			srv.UnexpectedError(w, err)
 			return err
 		}
 
-		server.JSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
+		srv.JSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
 		return nil
 	}
 }
 
 // POST daily entry
-func (server Server) newDailyHandler() bunrouter.HandlerFunc {
+func (srv Server) newDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		var ctx = context.Background()
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			server.JSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
+			srv.JSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
 			return err
 		}
 
@@ -75,11 +75,11 @@ func (server Server) newDailyHandler() bunrouter.HandlerFunc {
 
 		err = json.Unmarshal(body, &dailyEntry)
 		if err != nil {
-			server.JSON(w, http.StatusBadRequest, Envelope{"msg": "error parsing body"}, nil)
+			srv.JSON(w, http.StatusBadRequest, Envelope{"msg": "error parsing body"}, nil)
 			return err
 		}
 
-		exists, err := server.dbClient.NewSelect().
+		exists, err := srv.dbClient.NewSelect().
 			Model(&db.Journal{}).
 			Column("id").
 			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", time.Now().Format("2006-01-02"))).
@@ -90,7 +90,7 @@ func (server Server) newDailyHandler() bunrouter.HandlerFunc {
 		}
 
 		if exists {
-			server.JSON(
+			srv.JSON(
 				w,
 				http.StatusBadRequest,
 				Envelope{"error": "daily entry already exists for this date"},
@@ -102,15 +102,15 @@ func (server Server) newDailyHandler() bunrouter.HandlerFunc {
 		// Create a new one
 		dailyEntry.ID = db.CreateID()
 
-		_, err = server.dbClient.NewInsert().
+		_, err = srv.dbClient.NewInsert().
 			Model(&dailyEntry).
 			Exec(ctx)
 
 		if err != nil {
-			server.UnexpectedError(w, err)
+			srv.UnexpectedError(w, err)
 			return err
 		}
-		server.JSON(
+		srv.JSON(
 			w,
 			http.StatusCreated,
 			Envelope{"msg": "daily created"},
@@ -121,24 +121,24 @@ func (server Server) newDailyHandler() bunrouter.HandlerFunc {
 }
 
 // PATCH daily
-func (server Server) updateDailyHandler() bunrouter.HandlerFunc {
+func (srv Server) updateDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			server.JSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
+			srv.JSON(w, http.StatusBadRequest, Envelope{"msg": "can't read body"}, nil)
 			return err
 		}
 
 		var dailyEntry db.Journal
 		err = json.Unmarshal(body, &dailyEntry)
 		if err != nil {
-			server.UnexpectedError(w, err)
+			srv.UnexpectedError(w, err)
 			return err
 		}
 
 		var ctx = context.Background()
 
-		_, err = server.dbClient.NewInsert().
+		_, err = srv.dbClient.NewInsert().
 			Model(&dailyEntry).
 			On("CONFLICT (id) DO UPDATE").
 			Set("updated_at = EXCLUDED.updated_at").
@@ -146,10 +146,10 @@ func (server Server) updateDailyHandler() bunrouter.HandlerFunc {
 			Exec(ctx)
 
 		if err != nil {
-			server.UnexpectedError(w, err)
+			srv.UnexpectedError(w, err)
 			return err
 		}
-		server.JSON(
+		srv.JSON(
 			w,
 			http.StatusCreated,
 			Envelope{"msg": "daily updated"},
@@ -159,12 +159,31 @@ func (server Server) updateDailyHandler() bunrouter.HandlerFunc {
 	}
 }
 
+// Formats a new entry
+func (srv *Server) getDailyTemplate() bunrouter.HandlerFunc {
+
+	return func(w http.ResponseWriter, _ bunrouter.Request) error {
+
+		template := util.FormatContent(db.Journal{
+			CreatedAt: time.Now(),
+		}, time.Now())
+
+		srv.JSON(
+			w,
+			http.StatusCreated,
+			Envelope{"template": template},
+			nil,
+		)
+		return nil
+	}
+}
+
 // GET list daily entries
-func (app *Server) listDailyHandler() bunrouter.HandlerFunc {
+func (srv *Server) listDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, _ bunrouter.Request) error {
 		dailyEntries := new([]db.Journal)
 
-		err := app.dbClient.NewSelect().
+		err := srv.dbClient.NewSelect().
 			Model(dailyEntries).
 			Order("created_at DESC").
 			Scan(context.Background())
@@ -175,7 +194,7 @@ func (app *Server) listDailyHandler() bunrouter.HandlerFunc {
 			}
 		}
 
-		app.JSON(
+		srv.JSON(
 			w,
 			http.StatusCreated,
 			Envelope{"daily_entries": dailyEntries},

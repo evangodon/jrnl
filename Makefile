@@ -5,10 +5,10 @@ devbuild:
 devserver:
 	./scripts/dev-server.sh
 
-rebuild-server:
-	./scripts/rebuild-server.sh
+deployprod:
+	./scripts/deploy-prod.sh
 
 test:
 	gotest -v ./...
 
-.PHONY: devserver rebuild-server test devbuild
+.PHONY: devserver deployprod test devbuild

@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -37,8 +39,21 @@ func NewServer(srvConfig ServerConfig, dbClient db.DB) *Server {
 	}
 }
 
+// Get preferred outbound ip of this machine
+func getOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
+}
+
 func (server Server) Serve() error {
-	addr := fmt.Sprintf(":%d", server.cfg.Port)
+	addr := fmt.Sprintf("%s:%d", getOutboundIP().String(), server.cfg.Port)
 	srv := &http.Server{
 		Addr:         addr,
 		Handler:      server.routes(),
