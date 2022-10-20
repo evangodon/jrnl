@@ -21,7 +21,9 @@ var _ bun.BeforeAppendModelHook = (*Journal)(nil)
 func (j *Journal) BeforeAppendModel(ctx context.Context, query bun.Query) error {
 	switch query.(type) {
 	case *bun.InsertQuery:
-		j.CreatedAt = time.Now()
+		if j.CreatedAt.IsZero() {
+			j.CreatedAt = time.Now()
+		}
 		j.UpdatedAt = time.Now()
 	case *bun.UpdateQuery:
 		j.UpdatedAt = time.Now()
