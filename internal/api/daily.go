@@ -113,7 +113,7 @@ func (srv Server) newDailyHandler() bunrouter.HandlerFunc {
 		srv.JSON(
 			w,
 			http.StatusCreated,
-			Envelope{"msg": "daily created"},
+			Envelope{"daily": dailyEntry},
 			nil,
 		)
 		return nil

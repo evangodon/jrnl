@@ -11,7 +11,8 @@ type Response = {
 	};
 };
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch, depends }) => {
+	depends('daily-entry:new');
 	const date = dayjs().format('YYYY-MM-D');
 	try {
 		const response = await api.get(`daily/${date}`, { fetch });
@@ -23,7 +24,7 @@ export const load: PageLoad = async ({ fetch }) => {
 		const data = await response.json<{ template: string }>();
 		return {
 			daily: {
-				id: -1,
+				id: '-1',
 				content: data.template
 			}
 		};
