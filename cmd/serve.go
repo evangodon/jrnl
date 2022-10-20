@@ -5,7 +5,6 @@ import (
 
 	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/cfg"
-	"github.com/evangodon/jrnl/internal/db"
 )
 
 var ServeCmd = &cli.Command{
@@ -26,8 +25,7 @@ var ServeCmd = &cli.Command{
 			Env:  cfg.GetEnv(),
 		}
 
-		dbClient := db.Connect()
-		srv := api.NewServer(serverCfg, dbClient)
+		srv := api.NewServer(serverCfg)
 
 		err := srv.Serve()
 		if err != nil {

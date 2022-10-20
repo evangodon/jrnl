@@ -28,10 +28,10 @@ type Server struct {
 	logger   *logger.Logger
 }
 
-func NewServer(srvConfig ServerConfig, dbClient db.DB) *Server {
+func NewServer(srvConfig ServerConfig) *Server {
 	return &Server{
 		cfg:      srvConfig,
-		dbClient: dbClient,
+		dbClient: db.Connect(),
 		appCfg:   cfg.GetConfig(),
 		logger:   logger.NewLogger(os.Stdout),
 	}
