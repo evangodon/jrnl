@@ -8,7 +8,7 @@ import (
 )
 
 var dateFormat = "Monday January 2, 2006"
-var hourFormat = "3:04 PM"
+var hourFormat = "[3:04 PM]"
 
 // Checks if daily has existing content, and if not, will format a new one.
 func FormatContent(daily db.Journal, now time.Time) string {
@@ -20,7 +20,7 @@ func FormatContent(daily db.Journal, now time.Time) string {
 			fiveMinutesAgo := now.Add(-5 * time.Minute)
 
 			if daily.UpdatedAt.Before(fiveMinutesAgo) {
-				return content + "\n-- " + now.Format(hourFormat)
+				return content + "\n" + now.Format(hourFormat)
 			}
 		}
 
@@ -32,5 +32,5 @@ func FormatContent(daily db.Journal, now time.Time) string {
 		return "# " + daily.CreatedAt.Format(dateFormat) + "\n"
 	}
 
-	return "# " + daily.CreatedAt.Format(dateFormat) + "\n\n-- " + now.Format(hourFormat)
+	return "# " + daily.CreatedAt.Format(dateFormat) + "\n\n" + now.Format(hourFormat)
 }
