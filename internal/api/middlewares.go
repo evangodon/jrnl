@@ -11,10 +11,10 @@ import (
 var apiKeyheader = "X-API-Key"
 
 // Check if request has the api key in header
-func (server *Server) checkAPIKey(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
-	apiKeyInConfig := server.appCfg.API.Key
+func (srv *Server) validateAPIKeyMiddleware(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
+	apiKeyInConfig := srv.appCfg.API.Key
 	if apiKeyInConfig == "" {
-		server.logger.PrintFatal(
+		srv.logger.PrintFatal(
 			fmt.Sprintf("API Key not found in config at path: %s", cfg.GetConfigPath()),
 		)
 	}
@@ -23,15 +23,11 @@ func (server *Server) checkAPIKey(next bunrouter.HandlerFunc) bunrouter.HandlerF
 		apiKey := req.Header.Get(apiKeyheader)
 
 		if apiKey != apiKeyInConfig {
-			println("Not the right key", apiKey)
-			server.JSON(
-				w,
-				http.StatusUnauthorized,
-				Envelope{"msg": "Unauthorized"},
-				nil,
-			)
-
-			return nil
+			return HTTPError{
+				statusCode: http.StatusUnauthorized,
+				Code:       "unauthorized",
+				Message:    "Unauthorized",
+			}
 		}
 
 		return next(w, req)
@@ -59,5 +55,24 @@ func corsMiddleware(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
 		}
 
 		return next(w, req)
+	}
+}
+
+func errorHandler(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
+	return func(w http.ResponseWriter, req bunrouter.Request) error {
+		err := next(w, req)
+
+		switch err := err.(type) {
+		case nil:
+		case HTTPError:
+			w.WriteHeader(err.statusCode)
+			_ = bunrouter.JSON(w, err)
+		default:
+			httpErr := NewHTTPError(err)
+			w.WriteHeader(httpErr.statusCode)
+			_ = bunrouter.JSON(w, httpErr)
+		}
+
+		return err
 	}
 }

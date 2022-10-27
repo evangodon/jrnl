@@ -16,9 +16,20 @@ import (
 func TestServer(t *testing.T) {
 	t.Setenv("TEST", "true")
 	dbPath := db.GetDBPath()
-	db.CreateNewDB(dbPath)
+
+	if _, err := os.Stat(dbPath); err == nil {
+		err := os.Remove(dbPath)
+		require.NoError(t, err)
+	}
+
+	err := db.CreateNewDB(dbPath)
+	require.NoError(t, err)
+
 	t.Cleanup(func() {
-		os.Remove(dbPath)
+		err = os.Remove(dbPath)
+		if err != nil {
+			t.Error(err)
+		}
 	})
 
 	serverCfg := ServerConfig{

@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -31,15 +30,4 @@ func (server *Server) JSON(
 	w.Write(json)
 
 	return nil
-}
-
-func (app *Server) UnexpectedError(w http.ResponseWriter, err error) {
-	log.Fatal(err)
-
-	app.JSON(
-		w,
-		http.StatusInternalServerError,
-		Envelope{"msg": "Unexpected error"},
-		nil,
-	)
 }

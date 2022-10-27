@@ -11,4 +11,4 @@ echo "Building web bundle..."
 yarn build
 
 
-pm2 restart build/jrnl -- serve --port 30305
+pm2 restart jrnl -- serve --port 30305

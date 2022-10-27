@@ -11,6 +11,7 @@ func (server Server) routes() http.Handler {
 	router := bunrouter.New(
 		bunrouter.Use(reqlog.NewMiddleware()),
 		bunrouter.Use(corsMiddleware),
+		bunrouter.Use(errorHandler),
 	)
 
 	router.GET("/dbpath", server.dbPath)
@@ -18,7 +19,7 @@ func (server Server) routes() http.Handler {
 	router.GET("/*path", server.sendWebApp())
 
 	router.
-		Use(server.checkAPIKey).
+		Use(server.validateAPIKeyMiddleware).
 		WithGroup("/daily", func(group *bunrouter.Group) {
 			group.GET("/", server.getDailyHandler())
 			group.GET("/:date", server.getDailyHandler())
