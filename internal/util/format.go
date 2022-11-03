@@ -7,7 +7,7 @@ import (
 	"github.com/evangodon/jrnl/internal/db"
 )
 
-var dateFormat = "Monday January 2, 2006"
+var dateFormat = "Monday, January 2, 2006"
 var hourFormat = "[3:04 PM]"
 
 // Checks if daily has existing content, and if not, will format a new one.
@@ -32,5 +32,5 @@ func FormatContent(daily db.Journal, now time.Time) string {
 		return "# " + daily.CreatedAt.Format(dateFormat) + "\n"
 	}
 
-	return "# " + daily.CreatedAt.Format(dateFormat) + "\n\n" + now.Format(hourFormat)
+	return "# " + daily.CreatedAt.Format(dateFormat) + "\n\n" + now.Format(hourFormat) + "\n"
 }

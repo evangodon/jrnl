@@ -43,7 +43,7 @@
 </script>
 
 <form class="form" method="POST" on:submit|preventDefault={handleSubmit}>
-	<textarea name="content" class="daily-input" bind:value={newContent} rows={numRows} />
+	<textarea name="content" class="textarea" bind:value={newContent} rows={numRows} autofocus />
 	<button class="submit-btn" type="submit" disabled={data.daily.content === newContent}>
 		{data.daily.id === '-1' ? 'Create' : 'Update'}
 	</button>
@@ -56,7 +56,7 @@
 		align-items: center;
 		flex-direction: column;
 	}
-	.daily-input {
+	.textarea {
 		margin: 0 1rem;
 		margin-top: 3rem;
 		width: 100%;
@@ -68,6 +68,10 @@
 		border-radius: 4px;
 		font-size: 18px;
 		resize: none;
+	}
+
+	.textarea:focus {
+		outline: 3px solid var(--color-primary);
 	}
 
 	.submit-btn {
@@ -83,10 +87,19 @@
 		opacity: 75%;
 	}
 
-	@media only screen and (max-width: 600px) {
+	@media only screen and (max-width: 1080px) {
+		.form {
+			width: 98%;
+		}
+		.textarea {
+			margin: 5px;
+			font-size: 20px;
+			min-height: 75vh;
+		}
 		.submit-btn {
 			font-size: 22px;
 			width: 100%;
+			border-radius: 0;
 		}
 	}
 </style>
