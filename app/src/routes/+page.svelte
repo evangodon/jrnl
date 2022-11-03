@@ -7,7 +7,7 @@
 
 	export let data: PageData;
 	export let newContent = data.daily.content;
-	export let numRows = data.daily.content.split('\n').length + 1;
+	export const numRows = data.daily.content.split('\n').length + 1;
 
 	async function handleSubmit() {
 		const formData = new FormData(this);

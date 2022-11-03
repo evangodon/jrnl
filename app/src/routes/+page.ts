@@ -1,5 +1,6 @@
 import { api } from '$lib/api';
 import dayjs from 'dayjs';
+import { HTTPError } from 'ky';
 import type { PageLoad } from './$types';
 
 type Response = {
@@ -19,15 +20,19 @@ export const load: PageLoad = async ({ fetch, depends }) => {
 
     return await response.json<Response>();
   } catch (err: unknown) {
-    // TODO: if error is 404
-    const response = await api.get(`daily/template`, { fetch });
-    const data = await response.json<{ template: string }>();
-    return {
-      daily: {
-        id: '-1',
-        content: data.template
-      }
-    };
+    if (err instanceof HTTPError && err.response.status === 404) {
+      const response = await api.get(`daily/template`, { fetch });
+      const data = await response.json<{ template: string }>();
+      return {
+        daily: {
+          id: '-1',
+          content: data.template
+        }
+      };
+    }
+
+    console.error(err);
+    throw new Error('Unexpected error');
   }
 };
 
