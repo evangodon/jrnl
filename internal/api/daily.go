@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/evangodon/jrnl/internal/db"
@@ -150,12 +151,29 @@ func (srv *Server) getDailyTemplate() bunrouter.HandlerFunc {
 
 // GET list daily entries
 func (srv *Server) listDailyHandler() bunrouter.HandlerFunc {
-	return func(w http.ResponseWriter, _ bunrouter.Request) error {
+	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		dailyEntries := new([]db.Journal)
 
-		err := srv.dbClient.NewSelect().
+		pageParam := req.URL.Query().Get("page")
+		perPageParam := req.URL.Query().Get("perPage")
+
+		println("params", pageParam, perPageParam)
+
+		page, err := strconv.Atoi(pageParam)
+		if err != nil {
+			page = 1
+		}
+
+		perPage, err := strconv.Atoi(perPageParam)
+		if err != nil {
+			perPage = 20
+		}
+
+		err = srv.dbClient.NewSelect().
 			Model(dailyEntries).
 			Order("created_at DESC").
+			Offset((page - 1) * perPage).
+			Limit(perPage).
 			Scan(context.Background())
 
 		if err != nil {
