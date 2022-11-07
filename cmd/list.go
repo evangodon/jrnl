@@ -4,16 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/cfg"
 	"github.com/evangodon/jrnl/internal/db"
 	"github.com/evangodon/jrnl/internal/ui"
-	"github.com/evangodon/jrnl/internal/util"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/glamour"
 	"github.com/urfave/cli/v2"
 )
 
@@ -22,7 +19,7 @@ var ListCmd = &cli.Command{
 	Aliases: []string{"l"},
 	Usage:   "List all journal dailies",
 	Action: func(c *cli.Context) error {
-		p := tea.NewProgram(initialListJournalsModel(c), tea.WithAltScreen())
+		p := tea.NewProgram(initialModel(c), tea.WithAltScreen())
 
 		if err := p.Start(); err != nil {
 			fmt.Printf("Error occured: %v", err)
@@ -36,52 +33,35 @@ var ListCmd = &cli.Command{
 	},
 }
 
-type listJournalsModel struct {
-	list ui.List
-	ctx  *cli.Context
+type model struct {
+	perPage int
+	page    int
+	total   int
+	uiList  ui.List
+	client  api.Client
 }
 
-type journalItem struct {
-	itemNum   int
-	CreatedAt time.Time
-	Content   string
-}
-
-func (i journalItem) Title() string { return fmt.Sprintf("Journal #%d", i.itemNum) }
-
-func (i journalItem) Description() string {
-	return util.FormatToLocalTime(i.CreatedAt, "Monday, January 2, 2006")
-}
-
-func (i journalItem) GetContent() string {
-	out, err := glamour.Render(i.Content, "dark")
-	util.CheckError(err)
-
-	return out
-}
-
-func (i journalItem) FilterValue() string     { return i.CreatedAt.String() }
-func (i journalItem) GetCreatedAt() time.Time { return i.CreatedAt }
-
-func initialListJournalsModel(c *cli.Context) listJournalsModel {
-	return listJournalsModel{
-		list: ui.CreateList("Journal Entries"),
-		ctx:  c,
+func initialModel(c *cli.Context) model {
+	return model{
+		perPage: 20,
+		page:    1,
+		uiList:  ui.NewList("Journal Entries"),
+		client: api.Client{
+			Config: cfg.GetConfig(),
+		},
 	}
 }
 
-func getJournalEntries(_ *cli.Context) tea.Msg {
-	client := api.Client{
-		Config: cfg.GetConfig(),
-	}
-
-	res, err := client.MakeRequest(http.MethodGet, "/daily/list", nil)
+func (m model) getJournalEntries() tea.Msg {
+	path := fmt.Sprintf("/daily/list?perPage=%d&page=%d", m.perPage, m.page)
+	res, err := m.client.MakeRequest(http.MethodGet, path, nil)
 	if err != nil {
 		return err
 	}
 
 	payload := struct {
 		DailyEntries []db.Journal `json:"daily_entries"`
+		Total        int          `json:"total"`
 	}{}
 
 	err = json.Unmarshal(res.Body, &payload)
@@ -91,33 +71,50 @@ func getJournalEntries(_ *cli.Context) tea.Msg {
 
 	entries := payload.DailyEntries
 
-	var items []ui.ListItem
+	var listItems []ui.ListItem
 	for index, entry := range entries {
-		var item ui.ListItem = journalItem{
-			itemNum:   len(entries) - index,
+		var listItem ui.ListItem = ui.JournalItem{
+			ItemNum:   payload.Total - (len(m.uiList.Model.Items()) + index),
 			CreatedAt: entry.CreatedAt,
 			Content:   entry.Content,
 		}
-		items = append(items, item)
+		listItems = append(listItems, listItem)
 	}
 
-	return items
+	return ui.JournalEntriesRes{
+		ListItems: listItems,
+		Total:     payload.Total,
+	}
 }
 
-func (m listJournalsModel) Init() tea.Cmd {
+func (m model) Init() tea.Cmd {
 	teaCmd := func() tea.Msg {
-		return getJournalEntries(m.ctx)
+		return m.getJournalEntries()
 	}
 
 	return teaCmd
 }
 
-func (m listJournalsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	cmd := m.list.HandleMessage(msg)
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	cmd := m.uiList.HandleMessage(msg)
+	localItemsNum := len(m.uiList.Model.Items())
+	getMore := localItemsNum > 0 && m.uiList.Model.Paginator.OnLastPage() && m.total > localItemsNum
+
+	if getMore {
+		m.page += 1
+		return m, func() tea.Msg {
+			return m.getJournalEntries()
+		}
+	}
+
+	switch msg := msg.(type) {
+	case ui.JournalEntriesRes:
+		m.total = msg.Total
+	}
 
 	return m, cmd
 }
 
-func (m listJournalsModel) View() string {
-	return m.list.View()
+func (m model) View() string {
+	return m.uiList.View()
 }

@@ -1,12 +1,49 @@
 package ui
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	bubbleList "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	lg "github.com/charmbracelet/lipgloss"
+
+	"github.com/evangodon/jrnl/internal/util"
 )
+
+type JournalItem struct {
+	ItemNum   int
+	CreatedAt time.Time
+	Content   string
+}
+
+func (i JournalItem) Title() string { return fmt.Sprintf("Journal #%d", i.ItemNum) }
+
+func (i JournalItem) Description() string {
+	return util.FormatToLocalTime(i.CreatedAt, "Monday, January 2, 2006")
+}
+
+func (i JournalItem) GetContent() string {
+	out, err := glamour.Render(i.Content, "dark")
+	util.CheckError(err)
+
+	return out
+}
+
+func (i JournalItem) FilterValue() string     { return i.CreatedAt.String() }
+func (i JournalItem) GetCreatedAt() time.Time { return i.CreatedAt }
+
+func (i JournalItem) GetItemIndex() int {
+	date := i.CreatedAt.Format("02012006")
+
+	index, err := strconv.Atoi(date)
+	if err != nil {
+		panic(err)
+	}
+	return index
+}
 
 type ListItem interface {
 	Title() string
@@ -14,43 +51,40 @@ type ListItem interface {
 	GetContent() string
 	FilterValue() string
 	GetCreatedAt() time.Time
+	GetItemIndex() int
 }
 
 type List struct {
-	model   bubbleList.Model
-	entries map[int]ListItem
-	height  int
+	Model  bubbleList.Model
+	height int
 }
 
-func CreateList(title string) List {
+func NewList(title string) List {
 	list := List{}
-	list.model = bubbleList.NewModel([]bubbleList.Item{}, bubbleList.NewDefaultDelegate(), 0, 0)
-	list.model.Title = title
-	list.model.Styles.Title = lg.NewStyle().
+	list.Model = bubbleList.NewModel([]bubbleList.Item{}, bubbleList.NewDefaultDelegate(), 0, 0)
+	list.Model.Title = title
+	list.Model.Styles.Title = lg.NewStyle().
 		Foreground(Color.White).
 		Background(Color.Primary).
 		Padding(0, 1)
 
-	list.entries = map[int]ListItem{}
-
 	return list
 }
 
-func (l *List) AddItems(listItems []ListItem) {
-	for index, listItem := range listItems {
-
-		l.model.InsertItem(index, listItem)
-		l.entries[index] = listItem
-	}
+type JournalEntriesRes struct {
+	ListItems []ListItem
+	Total     int `json:"total"`
 }
 
-func (l *List) Cursor() int {
-	return (l.model.Paginator.Page * l.model.Paginator.PerPage) + l.model.Cursor()
+func (l *List) AddItems(listItems []ListItem) {
+	for _, listItem := range listItems {
+		l.Model.InsertItem(listItem.GetItemIndex(), listItem)
+	}
 }
 
 func (l *List) SetHeight(height int) {
 	l.height = height
-	l.model.SetHeight(height)
+	l.Model.SetHeight(height)
 }
 
 func (l *List) HandleMessage(msg tea.Msg) tea.Cmd {
@@ -62,20 +96,20 @@ func (l *List) HandleMessage(msg tea.Msg) tea.Cmd {
 			return tea.Quit
 
 		case "up", "k":
-			l.model.CursorUp()
+			l.Model.CursorUp()
 
 		case "down", "j":
-			l.model.CursorDown()
+			l.Model.CursorDown()
 
 		case "?":
-			l.model.SetShowHelp(true)
+			l.Model.SetShowHelp(true)
 		}
 
 	case tea.WindowSizeMsg:
 		l.SetHeight(msg.Height - leftSidemarginTop)
 
-	case []ListItem:
-		l.AddItems(msg)
+	case JournalEntriesRes:
+		l.AddItems(msg.ListItems)
 	}
 
 	return nil
@@ -84,13 +118,18 @@ func (l *List) HandleMessage(msg tea.Msg) tea.Cmd {
 const leftSidemarginTop = 3
 
 func (l *List) View() string {
-	list := l.model.View()
+	list := l.Model.View()
+	items := l.Model.Items()
 
-	if len(l.entries) == 0 {
-		return ""
+	if len(items) == 0 {
+		return "No entries created yet"
 	}
 
-	activeEntry := l.entries[l.Cursor()]
+	listItem := items[l.Model.Cursor()]
+	activeEntry, ok := listItem.(JournalItem)
+	if !ok {
+		panic("Couldn't cast item")
+	}
 
 	leftSide := lg.NewStyle().
 		MarginRight(3).
@@ -98,7 +137,7 @@ func (l *List) View() string {
 		Render(list)
 
 	topRightSide := ""
-	if activeEntry != nil && len(activeEntry.GetContent()) > 0 {
+	if len(activeEntry.GetContent()) > 0 {
 		topRightSide = lg.NewStyle().
 			MarginTop(2).
 			BorderStyle(lg.RoundedBorder()).
@@ -107,7 +146,7 @@ func (l *List) View() string {
 			Render(activeEntry.GetContent())
 	}
 
-	bottomRightSide := CreateStreakLine(l.entries, activeEntry)
+	bottomRightSide := CreateStreakLine(l.Model.Items(), activeEntry)
 	rightSide := lg.JoinVertical(lg.Left, topRightSide, bottomRightSide)
 
 	return lg.JoinHorizontal(lg.Top, leftSide, rightSide)

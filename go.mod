@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/glamour v0.3.0
 	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/uptrace/bun v1.0.19
 	github.com/uptrace/bun/dialect/sqlitedialect v1.0.19
 	github.com/uptrace/bun/driver/sqliteshim v1.0.19

@@ -27,12 +27,14 @@ var db DB
 
 func GetDBPath() string {
 	env := cfg.GetEnv()
-	if env == "DEV" || env == "TEST" {
+	switch env {
+	case "DEV":
 		return filepath.Join(cfg.GetProjectRoot(), "/tmp/devjrnl.db")
-	} else {
+	case "TEST":
+		return filepath.Join(cfg.GetProjectRoot(), "/tmp/testjrnl.db")
+	default:
 		dbFile := "/jrnl/jrnl.db"
 		path := xdg.DataHome + dbFile
-
 		return path
 	}
 }

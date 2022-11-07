@@ -152,12 +152,8 @@ func (srv *Server) getDailyTemplate() bunrouter.HandlerFunc {
 // GET list daily entries
 func (srv *Server) listDailyHandler() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
-		dailyEntries := new([]db.Journal)
-
 		pageParam := req.URL.Query().Get("page")
 		perPageParam := req.URL.Query().Get("perPage")
-
-		println("params", pageParam, perPageParam)
 
 		page, err := strconv.Atoi(pageParam)
 		if err != nil {
@@ -169,12 +165,13 @@ func (srv *Server) listDailyHandler() bunrouter.HandlerFunc {
 			perPage = 20
 		}
 
-		err = srv.dbClient.NewSelect().
+		dailyEntries := new([]db.Journal)
+		count, err := srv.dbClient.NewSelect().
 			Model(dailyEntries).
 			Order("created_at DESC").
 			Offset((page - 1) * perPage).
 			Limit(perPage).
-			Scan(context.Background())
+			ScanAndCount(context.Background())
 
 		if err != nil {
 			return err
@@ -183,7 +180,7 @@ func (srv *Server) listDailyHandler() bunrouter.HandlerFunc {
 		srv.JSON(
 			w,
 			http.StatusCreated,
-			Envelope{"daily_entries": dailyEntries},
+			Envelope{"daily_entries": dailyEntries, "total": count},
 			nil,
 		)
 		return nil

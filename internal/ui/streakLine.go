@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/evangodon/jrnl/internal/util"
 
 	lg "github.com/charmbracelet/lipgloss"
 )
 
-func CreateStreakLine(allEntries map[int]ListItem, activeEntry ListItem) string {
+var (
+	dot       = "● "
+	activeDot = "▣ "
+)
+
+func CreateStreakLine(allEntries []list.Item, activeEntry ListItem) string {
 	result := activeEntry.GetCreatedAt().Format("January 2006")
 
 	numberOfdays := util.GetNumberOfDaysInMonth(activeEntry.GetCreatedAt())
@@ -17,8 +23,13 @@ func CreateStreakLine(allEntries map[int]ListItem, activeEntry ListItem) string 
 
 	allEntriesOfMonth := map[int]ListItem{}
 	for _, e := range allEntries {
-		if e.GetCreatedAt().Month() == activeEntry.GetCreatedAt().Month() {
-			allEntriesOfMonth[e.GetCreatedAt().Day()] = e
+		journalItem, ok := e.(JournalItem)
+		if !ok {
+			panic("Couldn't cast item")
+		}
+
+		if journalItem.GetCreatedAt().Month() == activeEntry.GetCreatedAt().Month() {
+			allEntriesOfMonth[journalItem.GetCreatedAt().Day()] = journalItem
 		}
 	}
 
@@ -41,23 +52,23 @@ func CreateStreakLine(allEntries map[int]ListItem, activeEntry ListItem) string 
 				color = Color.Secondary
 			}
 
-			streakLine += lg.NewStyle().Foreground(color).Render("▣ ")
+			streakLine += lg.NewStyle().Foreground(color).Render(activeDot)
 			continue
 		}
 
 		if activeEntry.GetCreatedAt().Day() == i {
-			streakLine += lg.NewStyle().Foreground(Color.Primary).Render("● ")
+			streakLine += lg.NewStyle().Foreground(Color.Primary).Render(dot)
 			continue
 		}
 
 		entry := allEntriesOfMonth[i]
 
 		if entry != nil {
-			streakLine += lg.NewStyle().Foreground(Color.White).Render("● ")
+			streakLine += lg.NewStyle().Foreground(Color.White).Render(dot)
 			continue
 		}
 
-		streakLine += lg.NewStyle().Foreground(Color.GreyLight).Render("○ ")
+		streakLine += lg.NewStyle().Foreground(Color.GreyLight).Render(dot)
 	}
 
 	result += fmt.Sprintf("\n%s", streakLine)
