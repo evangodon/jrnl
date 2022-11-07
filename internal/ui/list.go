@@ -125,7 +125,7 @@ func (l *List) View() string {
 		return "No entries created yet"
 	}
 
-	listItem := items[l.Model.Cursor()]
+	listItem := items[l.Model.Index()]
 	activeEntry, ok := listItem.(JournalItem)
 	if !ok {
 		panic("Couldn't cast item")
