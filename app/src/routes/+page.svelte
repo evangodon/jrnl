@@ -43,7 +43,7 @@
 </script>
 
 <form class="form" method="POST" on:submit|preventDefault={handleSubmit}>
-	<textarea name="content" class="textarea" bind:value={newContent} rows={numRows} autofocus />
+	<textarea name="content" class="textarea" bind:value={newContent} rows={numRows} />
 	<button class="submit-btn" type="submit" disabled={data.daily.content === newContent}>
 		{data.daily.id === '-1' ? 'Create' : 'Update'}
 	</button>

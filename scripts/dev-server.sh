@@ -1,5 +1,8 @@
 #! /bin/bash
+#
 
-echo "Starting dev server..."
+OUT=tmp/bin/server
+PORT=8090
+
 export DEV=true
-watchexec -r -e go -- go run . serve --port 8090
+watchexec -r -e go -- "go build -o \"$OUT\" ./cmd/server/ && \"$OUT\"  --port \"$PORT\""

@@ -1,12 +1,8 @@
-
-devbuild:
-	./scripts/dev-build.sh
-
 devserver:
 	./scripts/dev-server.sh
 
-deployprod:
-	./scripts/deploy-prod.sh
+deployprodserver:
+	./scripts/deploy-prod-server.sh
 
 test:
 	gotest -v ./...

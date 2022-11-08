@@ -39,11 +39,12 @@ func NewServer(srvConfig ServerConfig) *Server {
 	}
 }
 
-func Main() {
+func main() {
 	serverCfg := ServerConfig{
 		Env: cfg.GetEnv(),
 	}
-	flag.IntVar(&serverCfg.Port, "port", 4000, "API server port")
+	flag.IntVar(&serverCfg.Port, "port", 8090, "API server port")
+	flag.Parse()
 
 	server := NewServer(serverCfg)
 	addr := fmt.Sprintf(":%d", serverCfg.Port)
@@ -75,7 +76,7 @@ func Main() {
 	}()
 
 	msg := fmt.Sprintf("🚀 Starting server at %s", srv.Addr)
-	server.logger.PrintInfo(msg)
+	server.logger.Print(msg)
 
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {

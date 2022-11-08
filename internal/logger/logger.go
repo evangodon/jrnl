@@ -13,6 +13,10 @@ func NewLogger(out io.Writer) *Logger {
 	return &Logger{out}
 }
 
+func (l Logger) Print(msg string) {
+	l.out.Write([]byte(msg))
+}
+
 func (l Logger) PrintInfo(msg string) {
 	log := " ℹ️ " + msg + "\n"
 	l.out.Write([]byte(log))
