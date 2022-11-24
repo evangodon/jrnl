@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -65,7 +66,7 @@ func main() {
 
 		log := fmt.Sprintf(
 			"Shutting down due to signal: %s\n",
-			map[string]string{"signal": s.String()},
+			strings.ToUpper(s.String()),
 		)
 		server.logger.PrintInfo(log)
 
@@ -75,7 +76,7 @@ func main() {
 		shutdownError <- srv.Shutdown(ctx)
 	}()
 
-	msg := fmt.Sprintf("🚀 Starting server at %s", srv.Addr)
+	msg := fmt.Sprintf("🚀 Starting server at %s\n", srv.Addr)
 	server.logger.Print(msg)
 
 	err := srv.ListenAndServe()
