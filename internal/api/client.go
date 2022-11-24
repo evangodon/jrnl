@@ -40,8 +40,7 @@ func (c *Client) MakeRequest(method string, path string, bodyParams io.Reader) (
 		return r, err
 	}
 
-	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated &&
-		res.StatusCode != http.StatusNotFound {
+	if res.StatusCode >= 300 {
 		panic("request error: " + string(body))
 	}
 	res.Body.Close()

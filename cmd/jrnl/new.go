@@ -49,7 +49,7 @@ var NewCmd = &cli.Command{
 			Daily db.Journal `json:"daily"`
 		}{
 			Daily: db.Journal{
-				CreatedAt: *date,
+				Date: *date,
 			},
 		}
 
@@ -69,9 +69,7 @@ var NewCmd = &cli.Command{
 		// Daily already exists for this day
 		if payload.Daily.ID != "" {
 			updatedEntry, err := json.Marshal(db.Journal{
-				ID:        payload.Daily.ID,
-				CreatedAt: payload.Daily.CreatedAt,
-				Content:   newContent,
+				ID: payload.Daily.ID,
 			})
 			if err != nil {
 				return err
@@ -91,6 +89,7 @@ var NewCmd = &cli.Command{
 		// Create new daily
 		newEntry, err := json.Marshal(db.Journal{
 			Content: newContent,
+			Date:    *date,
 		})
 		if err != nil {
 			return err

@@ -29,8 +29,8 @@ func FormatContent(daily db.Journal, now time.Time) string {
 
 	// The entry from not today is being updated.
 	if now.Format(dateFormat) != daily.CreatedAt.Format(dateFormat) {
-		return "# " + daily.CreatedAt.Format(dateFormat) + "\n"
+		return "# " + daily.Date.Format(dateFormat) + "\n"
 	}
 
-	return "# " + daily.CreatedAt.Format(dateFormat) + "\n\n" + now.Format(hourFormat) + "\n"
+	return "# " + daily.Date.Format(dateFormat) + "\n\n" + now.Format(hourFormat) + "\n"
 }

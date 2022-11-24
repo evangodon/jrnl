@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/evangodon/jrnl/internal/api"
 	"github.com/evangodon/jrnl/internal/cfg"
@@ -57,6 +59,7 @@ func TestServer(t *testing.T) {
 
 	testEntry := db.Journal{
 		Content: "A new entry for today",
+		Date:    time.Now(),
 	}
 
 	t.Run("should be able to create a daily entry for today", func(t *testing.T) {
@@ -85,5 +88,39 @@ func TestServer(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, testEntry.Content, gotEntry.Daily.Content)
+	})
+
+	t.Run("should be able to update the entry for today", func(t *testing.T) {
+		res, err := client.MakeRequest(http.MethodGet, "/daily/", nil)
+		require.NoError(t, err)
+		require.Equal(t, res.Status, http.StatusOK)
+
+		gotEntry := struct {
+			Daily db.Journal `json:"daily"`
+		}{
+			Daily: db.Journal{},
+		}
+		err = json.Unmarshal(res.Body, &gotEntry)
+		require.NoError(t, err)
+		fmt.Printf("ID: %s\n", gotEntry.Daily.ID)
+
+		updatedEntry := db.Journal{
+			ID:      gotEntry.Daily.ID,
+			Date:    gotEntry.Daily.Date,
+			Content: gotEntry.Daily.Content + "\nand here's another thing",
+		}
+		payload, err := json.Marshal(updatedEntry)
+		if err != nil {
+			t.Error(err)
+		}
+
+		res, err = client.MakeRequest(
+			http.MethodPatch,
+			"/daily/"+updatedEntry.ID,
+			bytes.NewBuffer(payload),
+		)
+		require.NoError(t, err)
+
+		require.Equal(t, res.Status, http.StatusNoContent)
 	})
 }

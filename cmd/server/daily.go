@@ -36,7 +36,7 @@ func (srv Server) getDailyHandler() bunrouter.HandlerFunc {
 		err := srv.dbClient.NewSelect().
 			Model(daily).
 			Column("id", "updated_at", "content").
-			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", date.Format("2006-01-02"))).
+			Where(fmt.Sprintf("DATE(date) = DATE('%s')", date.Format("2006-01-02"))).
 			Scan(ctx)
 		if err != nil {
 			return err
@@ -64,7 +64,7 @@ func (srv Server) newDailyHandler() bunrouter.HandlerFunc {
 		exists, err := srv.dbClient.NewSelect().
 			Model(&db.Journal{}).
 			Column("id").
-			Where(fmt.Sprintf("DATE(created_at, 'localtime') = DATE('%s')", time.Now().Format("2006-01-02"))).
+			Where(fmt.Sprintf("DATE(date, 'localtime') = DATE('%s')", dailyEntry.CreatedAt.Format("2006-01-02"))).
 			Exists(ctx)
 		if err != nil {
 			return err
@@ -110,11 +110,10 @@ func (srv Server) updateDailyHandler() bunrouter.HandlerFunc {
 
 		var ctx = context.Background()
 
-		_, err = srv.dbClient.NewInsert().
+		_, err = srv.dbClient.NewUpdate().
+			OmitZero().
 			Model(&dailyEntry).
-			On("CONFLICT (id) DO UPDATE").
-			Set("updated_at = EXCLUDED.updated_at").
-			Set("content = EXCLUDED.content").
+			WherePK().
 			Exec(ctx)
 
 		if err != nil {
@@ -122,7 +121,7 @@ func (srv Server) updateDailyHandler() bunrouter.HandlerFunc {
 		}
 		srv.JSON(
 			w,
-			http.StatusCreated,
+			http.StatusNoContent,
 			Envelope{"daily": dailyEntry},
 			nil,
 		)

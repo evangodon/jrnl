@@ -16,6 +16,7 @@ require (
 	github.com/uptrace/bun/driver/sqliteshim v1.0.19
 	github.com/uptrace/bun/extra/bundebug v1.0.19
 	github.com/uptrace/bunrouter v1.0.19
+	github.com/uptrace/bunrouter/extra/reqlog v1.0.19
 	github.com/urfave/cli/v2 v2.3.0
 )
 
@@ -30,7 +31,6 @@ require (
 	github.com/dlclark/regexp2 v1.2.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -53,7 +53,6 @@ require (
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
-	github.com/uptrace/bunrouter/extra/reqlog v1.0.19 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/yuin/goldmark v1.4.0 // indirect
