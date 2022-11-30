@@ -21,12 +21,12 @@ func (server Server) routes() http.Handler {
 	router.
 		Use(server.validateAPIKeyMiddleware).
 		WithGroup("/daily", func(group *bunrouter.Group) {
-			group.GET("/", server.getDailyHandler())
-			group.GET("/:date", server.getDailyHandler())
-			group.GET("/template", server.getDailyTemplate())
-			group.PATCH("/:id", server.updateDailyHandler())
-			group.GET("/list", server.listDailyHandler())
-			group.POST("/new", server.newDailyHandler())
+			group.GET("/", server.handleGetDaily())
+			group.GET("/:date", server.handleGetDaily())
+			group.GET("/template", server.handleGetDailyTemplate())
+			group.PATCH("/:id", server.handleUpdateDaily())
+			group.GET("/list", server.handleListDaily())
+			group.POST("/new", server.handleNewDaily())
 		})
 
 	return router

@@ -16,7 +16,7 @@ import (
 )
 
 // GET daily entry
-func (srv Server) getDailyHandler() bunrouter.HandlerFunc {
+func (srv Server) handleGetDaily() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		var ctx = context.Background()
 		params := req.Params()
@@ -48,7 +48,7 @@ func (srv Server) getDailyHandler() bunrouter.HandlerFunc {
 }
 
 // POST daily entry
-func (srv Server) newDailyHandler() bunrouter.HandlerFunc {
+func (srv Server) handleNewDaily() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		var ctx = context.Background()
 		body, err := ioutil.ReadAll(req.Body)
@@ -95,7 +95,7 @@ func (srv Server) newDailyHandler() bunrouter.HandlerFunc {
 }
 
 // PATCH daily
-func (srv Server) updateDailyHandler() bunrouter.HandlerFunc {
+func (srv Server) handleUpdateDaily() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -130,7 +130,7 @@ func (srv Server) updateDailyHandler() bunrouter.HandlerFunc {
 }
 
 // Formats a new entry
-func (srv *Server) getDailyTemplate() bunrouter.HandlerFunc {
+func (srv *Server) handleGetDailyTemplate() bunrouter.HandlerFunc {
 
 	return func(w http.ResponseWriter, _ bunrouter.Request) error {
 
@@ -149,7 +149,7 @@ func (srv *Server) getDailyTemplate() bunrouter.HandlerFunc {
 }
 
 // GET list daily entries
-func (srv *Server) listDailyHandler() bunrouter.HandlerFunc {
+func (srv *Server) handleListDaily() bunrouter.HandlerFunc {
 	return func(w http.ResponseWriter, req bunrouter.Request) error {
 		pageParam := req.URL.Query().Get("page")
 		perPageParam := req.URL.Query().Get("perPage")

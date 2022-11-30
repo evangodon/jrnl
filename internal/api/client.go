@@ -3,6 +3,7 @@ package api
 import (
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/evangodon/jrnl/internal/cfg"
@@ -31,7 +32,7 @@ func (c *Client) MakeRequest(method string, path string, bodyParams io.Reader) (
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		panic("jrnl server not running")
+		log.Fatal("jrnl server not running", err)
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
