@@ -7,4 +7,3 @@ deployprodserver:
 test:
 	gotest -v ./...
 
-.PHONY: devserver deployprod test devbuild
