@@ -42,7 +42,7 @@ var NewCmd = &cli.Command{
 
 		res, err := client.MakeRequest(http.MethodGet, "/daily/"+entryDate, nil)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get entry for %v", entryDate)
 		}
 
 		payload := struct {
@@ -55,7 +55,7 @@ var NewCmd = &cli.Command{
 
 		err = json.Unmarshal(res.Body, &payload)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get unmarshal body with error %v", err)
 		}
 
 		existingContent := util.FormatContent(payload.Daily, time.Now())
@@ -68,8 +68,10 @@ var NewCmd = &cli.Command{
 
 		// Daily already exists for this day
 		if payload.Daily.ID != "" {
+			fmt.Println("newContent", newContent)
 			updatedEntry, err := json.Marshal(db.Journal{
-				ID: payload.Daily.ID,
+				ID:      payload.Daily.ID,
+				Content: newContent,
 			})
 			if err != nil {
 				return err

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -39,7 +40,12 @@ func (srv Server) handleGetDaily() bunrouter.HandlerFunc {
 			Where(fmt.Sprintf("DATE(date) = DATE('%s')", date.Format("2006-01-02"))).
 			Scan(ctx)
 		if err != nil {
-			return err
+			if err == sql.ErrNoRows {
+				srv.JSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
+				return nil
+			} else {
+				return fmt.Errorf("Failed to select entry with error %v", err)
+			}
 		}
 
 		srv.JSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
@@ -110,6 +116,7 @@ func (srv Server) handleUpdateDaily() bunrouter.HandlerFunc {
 
 		var ctx = context.Background()
 
+		fmt.Println("content", dailyEntry.Content)
 		_, err = srv.dbClient.NewUpdate().
 			OmitZero().
 			Model(&dailyEntry).
