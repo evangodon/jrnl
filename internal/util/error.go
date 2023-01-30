@@ -2,7 +2,6 @@ package util
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 )
@@ -19,7 +18,6 @@ func CheckIfNoRowsFound(err error, message string) {
 	}
 
 	if err == sql.ErrNoRows {
-		fmt.Println(message)
 		os.Exit(1)
 	} else {
 		log.Fatal(err)

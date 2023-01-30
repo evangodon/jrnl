@@ -58,6 +58,8 @@ var NewCmd = &cli.Command{
 			return fmt.Errorf("failed to get unmarshal body with error %v", err)
 		}
 
+		payload.Daily.Date = *date
+
 		existingContent := util.FormatContent(payload.Daily, time.Now())
 		newContent := util.OpenEditorWithContent(existingContent)
 
@@ -68,7 +70,6 @@ var NewCmd = &cli.Command{
 
 		// Daily already exists for this day
 		if payload.Daily.ID != "" {
-			fmt.Println("newContent", newContent)
 			updatedEntry, err := json.Marshal(db.Journal{
 				ID:      payload.Daily.ID,
 				Content: newContent,

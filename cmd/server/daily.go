@@ -41,7 +41,7 @@ func (srv Server) handleGetDaily() bunrouter.HandlerFunc {
 			Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				srv.JSON(w, http.StatusOK, Envelope{"daily": daily}, nil)
+				srv.JSON(w, http.StatusOK, Envelope{"daily": nil}, nil)
 				return nil
 			} else {
 				return fmt.Errorf("Failed to select entry with error %v", err)
@@ -116,7 +116,6 @@ func (srv Server) handleUpdateDaily() bunrouter.HandlerFunc {
 
 		var ctx = context.Background()
 
-		fmt.Println("content", dailyEntry.Content)
 		_, err = srv.dbClient.NewUpdate().
 			OmitZero().
 			Model(&dailyEntry).
